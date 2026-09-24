@@ -1,0 +1,4 @@
+import Link from 'next/link';
+import {Brand} from './ui';
+import {navigation} from '@/lib/content';
+export default function Footer(){return <footer className="border-t border-line bg-white"><div className="shell"><div className="grid gap-8 py-12 md:grid-cols-[1fr_1fr_1.2fr]"><Brand/><p className="text-sm leading-relaxed text-muted">Thoughtful software.<br/>Meaningful possibilities.</p><nav aria-label="Footer" className="flex flex-wrap gap-x-6 gap-y-3 text-sm md:justify-end">{navigation.slice(1).map(i=><Link className="hover:text-teal" key={i.href} href={i.href}>{i.label}</Link>)}</nav></div><div className="flex flex-wrap justify-between gap-4 border-t border-line py-6 text-xs text-muted"><span>© 2026 Primenova. All rights reserved.</span><span>Built with purpose.</span></div></div></footer>}
