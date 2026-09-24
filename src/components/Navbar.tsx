@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "./Button";
@@ -33,9 +34,17 @@ export function Navbar() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-10">
         <Link
           href="/"
-          className="text-[15px] font-extrabold tracking-[0.08em] text-foreground transition-opacity hover:opacity-80"
+          className="inline-flex items-center transition-opacity hover:opacity-80"
+          aria-label="Primenova home"
         >
-          PRIMENOVA
+          <Image
+            src="/images/primenova-logo.png"
+            alt="Primenova"
+            width={180}
+            height={48}
+            className="h-9 w-auto sm:h-10"
+            priority
+          />
         </Link>
 
         <nav className="hidden items-center gap-7 lg:flex" aria-label="Main">

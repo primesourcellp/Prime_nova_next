@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 const columns = [
@@ -33,9 +34,13 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10">
         <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div id="about">
-            <p className="text-[15px] font-extrabold tracking-[0.08em] text-foreground">
-              PRIMENOVA
-            </p>
+            <Image
+              src="/images/primenova-logo.png"
+              alt="Primenova"
+              width={180}
+              height={48}
+              className="h-10 w-auto"
+            />
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted">
               Recruitment technology for smarter, more structured hiring —
               bringing product discovery and industry solutions together.
