@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Reveal } from "./Reveal";
-import { Button } from "./Button";
 import { PlanComparison } from "./PlanComparison";
+import { RegisterPageContent } from "./RegisterPageContent";
 import {
   type CatalogApplication,
   fetchApplicationByCode,
@@ -20,6 +20,8 @@ type LoadState =
 export function ProductDetailContent({ code }: { code: string }) {
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const registerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -44,6 +46,15 @@ export function ProductDetailContent({ code }: { code: string }) {
       cancelled = true;
     };
   }, [code]);
+
+  useEffect(() => {
+    if (!selectedPlan || !registerRef.current) return;
+    registerRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [selectedPlan]);
+
+  const openRegister = (planCode: string) => {
+    setSelectedPlan(planCode);
+  };
 
   return (
     <section className="border-b border-border/70 bg-background">
@@ -116,19 +127,6 @@ export function ProductDetailContent({ code }: { code: string }) {
                   ? `Choose a plan for ${state.application.name}. Pricing and features are loaded live from the Subscription Module.`
                   : `${state.application.name} is in the catalog. Publish active plans in Subscription Module to show pricing here.`}
               </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Button
-                  href={`/login?application=${encodeURIComponent(state.application.application_code)}`}
-                >
-                  Sign in to app
-                </Button>
-                <Button
-                  href={`/register?application=${encodeURIComponent(state.application.application_code)}`}
-                  variant="secondary"
-                >
-                  Register
-                </Button>
-              </div>
             </Reveal>
 
             {state.application.plans.length > 0 && (
@@ -167,13 +165,18 @@ export function ProductDetailContent({ code }: { code: string }) {
                         ? plan.monthly_price
                         : plan.yearly_price;
                     const period = billing === "monthly" ? "/mo" : "/yr";
+                    const isSelected = selectedPlan === plan.code;
 
                     return (
                       <Reveal
                         key={plan.id}
                         as="article"
                         delay={index * 80}
-                        className="flex flex-col rounded-xl border border-border bg-surface p-6 transition-colors duration-300 hover:border-primary/40"
+                        className={`flex flex-col rounded-xl border bg-surface p-6 transition-colors duration-300 ${
+                          isSelected
+                            ? "border-primary shadow-[0_12px_32px_-20px_rgba(15,118,110,0.35)]"
+                            : "border-border hover:border-primary/40"
+                        }`}
                       >
                         <h2 className="text-lg font-bold text-foreground">
                           {plan.name}
@@ -231,22 +234,52 @@ export function ProductDetailContent({ code }: { code: string }) {
                         </ul>
 
                         <div className="mt-8">
-                          <Button
-                            href={`/register?application=${encodeURIComponent(state.application.application_code)}&plan=${encodeURIComponent(plan.code)}`}
-                            className="w-full py-2.5! text-[13px]!"
+                          <button
+                            type="button"
+                            onClick={() => openRegister(plan.code)}
+                            className={`inline-flex w-full items-center justify-center gap-1.5 rounded-lg px-5 py-2.5 text-[13px] font-semibold transition-all duration-300 ease-out ${
+                              isSelected
+                                ? "bg-primary text-white shadow-sm shadow-primary/20"
+                                : "bg-primary text-white shadow-sm shadow-primary/20 hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-md hover:shadow-primary/25 active:translate-y-0"
+                            }`}
                           >
-                            Get started
-                          </Button>
+                            {isSelected ? "Selected" : "Get started"}
+                          </button>
                         </div>
                       </Reveal>
                     );
                   })}
                 </div>
 
+                {selectedPlan && (
+                  <div
+                    ref={registerRef}
+                    id="register"
+                    className="mt-14 scroll-mt-24 border-t border-border/50 bg-[linear-gradient(180deg,#f7fafb_0%,#ffffff_55%,#f3f6f7_100%)]"
+                  >
+                    <div className="mx-auto max-w-2xl px-1 py-12 sm:py-14">
+                      <RegisterPageContent
+                        key={`${state.application.application_code}-${selectedPlan}-${billing}`}
+                        presetApplication={
+                          state.application.application_code
+                        }
+                        presetPlan={selectedPlan}
+                        presetBilling={
+                          billing === "yearly" ? "YEARLY" : "MONTHLY"
+                        }
+                        lockApplication
+                        embedded
+                        onClose={() => setSelectedPlan(null)}
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <PlanComparison
                   plans={state.application.plans}
                   applicationCode={state.application.application_code}
                   billing={billing}
+                  onSelectPlan={openRegister}
                 />
               </>
             )}

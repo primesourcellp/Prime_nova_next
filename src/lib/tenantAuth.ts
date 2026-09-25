@@ -243,8 +243,10 @@ export function resolveRegisterLaunchUrl(
 const REGISTER_SUCCESS_KEY = "primenova_register_success";
 
 export type RegisterSuccessPayload = {
+  fullName?: string;
   companyName: string;
   email: string;
+  phone?: string;
   applicationCode: string;
   applicationName?: string;
   planCode?: string | null;

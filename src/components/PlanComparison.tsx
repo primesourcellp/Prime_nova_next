@@ -10,6 +10,7 @@ type Props = {
   plans: CatalogPlan[];
   applicationCode: string;
   billing: "monthly" | "yearly";
+  onSelectPlan?: (planCode: string) => void;
 };
 
 function FeatureBadge({ enabled }: { enabled: boolean }) {
@@ -27,7 +28,12 @@ function FeatureBadge({ enabled }: { enabled: boolean }) {
   );
 }
 
-export function PlanComparison({ plans, applicationCode, billing }: Props) {
+export function PlanComparison({
+  plans,
+  applicationCode,
+  billing,
+  onSelectPlan,
+}: Props) {
   if (plans.length < 2) return null;
 
   const rows = buildComparisonMatrix(plans);
@@ -80,16 +86,30 @@ export function PlanComparison({ plans, applicationCode, billing }: Props) {
                     <div className="mt-1 text-xs font-medium text-muted">
                       {planPriceLabel(plan, billing)}
                     </div>
-                    <Link
-                      href={`/register?application=${encodeURIComponent(applicationCode)}&plan=${encodeURIComponent(plan.code)}`}
-                      className={`mt-3 inline-flex rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                        highlighted
-                          ? "bg-primary text-white hover:bg-primary-hover"
-                          : "border border-border bg-background text-foreground hover:border-primary/40"
-                      }`}
-                    >
-                      {plan.trial_days > 0 ? "Start trial" : "Get started"}
-                    </Link>
+                    {onSelectPlan ? (
+                      <button
+                        type="button"
+                        onClick={() => onSelectPlan(plan.code)}
+                        className={`mt-3 inline-flex rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                          highlighted
+                            ? "bg-primary text-white hover:bg-primary-hover"
+                            : "border border-border bg-background text-foreground hover:border-primary/40"
+                        }`}
+                      >
+                        {plan.trial_days > 0 ? "Start trial" : "Get started"}
+                      </button>
+                    ) : (
+                      <Link
+                        href={`/register?application=${encodeURIComponent(applicationCode)}&plan=${encodeURIComponent(plan.code)}`}
+                        className={`mt-3 inline-flex rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                          highlighted
+                            ? "bg-primary text-white hover:bg-primary-hover"
+                            : "border border-border bg-background text-foreground hover:border-primary/40"
+                        }`}
+                      >
+                        {plan.trial_days > 0 ? "Start trial" : "Get started"}
+                      </Link>
+                    )}
                   </th>
                 );
               })}

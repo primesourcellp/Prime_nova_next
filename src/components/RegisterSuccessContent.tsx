@@ -105,6 +105,12 @@ export function RegisterSuccessContent() {
 
       <div className="rounded-xl border border-border bg-background px-4 py-4 text-sm">
         <dl className="space-y-2">
+          {payload.fullName && (
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted">Name</dt>
+              <dd className="font-medium text-foreground">{payload.fullName}</dd>
+            </div>
+          )}
           <div className="flex justify-between gap-4">
             <dt className="text-muted">Company</dt>
             <dd className="font-medium text-foreground">{payload.companyName}</dd>
@@ -113,6 +119,12 @@ export function RegisterSuccessContent() {
             <dt className="text-muted">Email</dt>
             <dd className="font-medium text-foreground">{payload.email}</dd>
           </div>
+          {payload.phone && (
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted">Phone</dt>
+              <dd className="font-medium text-foreground">{payload.phone}</dd>
+            </div>
+          )}
           {payload.planCode && (
             <div className="flex justify-between gap-4">
               <dt className="text-muted">Plan</dt>

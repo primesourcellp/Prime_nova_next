@@ -7,10 +7,7 @@ import { Button } from "./Button";
 
 const navLinks = [
   { label: "Products", href: "/products" },
-  { label: "Solutions", href: "/#solutions" },
-  { label: "Industries", href: "/#industries" },
-  { label: "Technology", href: "/#technology" },
-  { label: "Resources", href: "/#resources" },
+  { label: "Portfolio", href: "/portfolio" },
   { label: "About", href: "/#about" },
 ];
 
@@ -66,18 +63,6 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-5 lg:flex">
-          <Link
-            href="/login"
-            className="text-[13px] font-medium text-foreground/80 transition-colors hover:text-foreground"
-          >
-            Sign in
-          </Link>
-          <Link
-            href="/register"
-            className="text-[13px] font-medium text-foreground/80 transition-colors hover:text-foreground"
-          >
-            Register
-          </Link>
           <Button href="/#demo" className="py-2! text-[13px]!">
             Request a Demo
           </Button>
@@ -121,20 +106,6 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
-          <Link
-            href="/login"
-            className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-soft"
-            onClick={() => setOpen(false)}
-          >
-            Sign in
-          </Link>
-          <Link
-            href="/register"
-            className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-soft"
-            onClick={() => setOpen(false)}
-          >
-            Register
-          </Link>
           <div className="mt-3 px-1" onClick={() => setOpen(false)}>
             <Button href="/#demo" className="w-full">
               Request a Demo
