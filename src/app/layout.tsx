@@ -11,14 +11,14 @@ const jakarta = Plus_Jakarta_Sans({
 const newsreader = Newsreader({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
-  title: "PRIMENOVA — Recruitment Software for Smarter Hiring",
+  title: "Primenova — Recruitment Software for Structured Hiring",
   description:
-    "PRIMENOVA provides a product-focused approach to recruitment technology, helping organizations explore software and solutions designed around their hiring needs.",
+    "Primenova provides product-focused recruitment technology that helps organizations structure pipelines, screening, and hiring decisions with clarity.",
 };
 
 export default function RootLayout({

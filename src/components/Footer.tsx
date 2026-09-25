@@ -29,7 +29,7 @@ const columns = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-border/70 bg-background">
+    <footer className="border-t border-border/40 bg-[linear-gradient(180deg,#f3f6f7_0%,#eaf0f2_100%)]">
       <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10">
         <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div id="about">
@@ -80,7 +80,7 @@ export function Footer() {
 
         <div className="mt-14 flex flex-col gap-3 border-t border-border pt-8 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-muted-light">
-            © {new Date().getFullYear()} PRIMENOVA. All rights reserved.
+            © {new Date().getFullYear()} Primenova. All rights reserved.
           </p>
           <p className="text-xs text-muted-light">
             Recruitment software for structured hiring.

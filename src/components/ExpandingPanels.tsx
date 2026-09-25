@@ -58,8 +58,9 @@ export function ExpandingPanels() {
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
             In practice
           </p>
-          <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-            Hover to explore how PRIMENOVA fits your hiring flow
+          <h2 className="mt-3 font-serif text-[clamp(1.85rem,3.4vw,2.75rem)] font-medium tracking-[-0.03em] text-foreground">
+            How Primenova fits your{" "}
+            <span className="text-teal">hiring flow</span>
           </h2>
         </div>
 

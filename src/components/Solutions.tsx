@@ -32,32 +32,35 @@ export function Solutions() {
     <>
       <section
         id="solutions"
-        className="scroll-mt-20 border-t border-border/70 bg-surface"
+        className="scroll-mt-20 border-t border-border/40 bg-[linear-gradient(180deg,#f7fafb_0%,#ffffff_100%)]"
       >
         <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-28">
           <Reveal className="max-w-2xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
               Solutions
             </p>
-            <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-              Solutions shaped by hiring context
+            <h2 className="mt-3 font-serif text-[clamp(2rem,3.5vw,2.75rem)] font-medium tracking-[-0.03em] text-foreground">
+              Hiring systems shaped by how teams{" "}
+              <span className="text-teal">actually work</span>
             </h2>
-            <p className="mt-4 text-base leading-relaxed text-muted sm:text-lg">
+            <p className="mt-4 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
               Whether you scale teams internally or place talent for clients,
-              PRIMENOVA adapts to the way your organization works.
+              Primenova adapts to the rhythm of your organization.
             </p>
           </Reveal>
 
-          <div className="mt-14 grid gap-8 md:grid-cols-3">
+          <div className="mt-16 grid gap-x-12 gap-y-12 md:grid-cols-3">
             {solutions.map((item, index) => (
               <Reveal
                 key={item.title}
                 as="article"
-                delay={index * 120}
-                className="flex flex-col"
+                delay={index * 100}
+                className="flex flex-col border-t border-foreground/10 pt-6"
               >
-                <div className="solution-bar mb-5 h-1 w-10 rounded-full bg-primary" />
-                <h3 className="text-xl font-bold text-foreground">
+                <span className="font-serif text-3xl font-medium text-primary/80">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <h3 className="mt-4 text-xl font-bold tracking-tight text-foreground">
                   {item.title}
                 </h3>
                 <p className="mt-3 text-[15px] leading-relaxed text-muted">
@@ -71,32 +74,26 @@ export function Solutions() {
 
       <section
         id="industries"
-        className="scroll-mt-20 border-t border-border/70 bg-background"
+        className="scroll-mt-20 border-t border-border/40 bg-background"
       >
         <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-24">
-          <Reveal className="grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:items-end">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
-                Industries
-              </p>
-              <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-                Built for modern hiring across sectors
-              </h2>
-            </div>
-            <p className="max-w-xl text-base leading-relaxed text-muted lg:justify-self-end">
-              From regulated industries to fast-moving tech teams, explore
-              approaches designed around the realities of each hiring
-              environment.
+          <Reveal className="max-w-2xl">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+              Industries
             </p>
+            <h2 className="mt-3 font-serif text-[clamp(2rem,3.5vw,2.75rem)] font-medium tracking-[-0.03em] text-foreground">
+              Built for modern hiring{" "}
+              <span className="text-teal">across sectors</span>
+            </h2>
           </Reveal>
 
-          <ul className="mt-12 grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3 lg:grid-cols-6">
+          <ul className="mt-12 grid grid-cols-2 gap-x-8 gap-y-0 sm:grid-cols-3 lg:grid-cols-6">
             {industries.map((industry, index) => (
               <Reveal
                 key={industry}
                 as="li"
-                delay={index * 60}
-                className="border-t border-border pt-4 text-sm font-semibold text-foreground transition-colors duration-300 hover:border-primary hover:text-primary"
+                delay={index * 50}
+                className="border-t border-border py-5 text-sm font-semibold text-foreground transition-colors duration-300 hover:border-primary hover:text-primary"
               >
                 {industry}
               </Reveal>

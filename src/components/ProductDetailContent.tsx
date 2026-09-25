@@ -201,12 +201,25 @@ export function ProductDetailContent({ code }: { code: string }) {
                           {plan.features.map((feature) => (
                             <li
                               key={feature.feature_code}
-                              className="flex gap-2 text-sm text-muted"
+                              className="flex gap-2.5 text-sm text-muted"
                             >
                               <span
-                                className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
+                                className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-white"
                                 aria-hidden
-                              />
+                              >
+                                <svg
+                                  width="11"
+                                  height="11"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="3"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <path d="M20 6 9 17l-5-5" />
+                                </svg>
+                              </span>
                               <span>
                                 {feature.name}
                                 {feature.limit_value != null
