@@ -5,25 +5,24 @@ const columns = [
   {
     title: "Product",
     links: [
-      { label: "Talent Pipeline", href: "#products" },
-      { label: "Role Workspace", href: "#products" },
-      { label: "Enquiry Hub", href: "#products" },
+      { label: "All products", href: "/products" },
+      { label: "Request a Demo", href: "/#demo" },
     ],
   },
   {
     title: "Company",
     links: [
-      { label: "About", href: "#about" },
-      { label: "Resources", href: "#resources" },
-      { label: "Contact", href: "#contact" },
+      { label: "About", href: "/#about" },
+      { label: "Resources", href: "/#resources" },
+      { label: "Contact", href: "/#contact" },
     ],
   },
   {
     title: "Explore",
     links: [
-      { label: "Solutions", href: "#solutions" },
-      { label: "Industries", href: "#industries" },
-      { label: "Technology", href: "#technology" },
+      { label: "Solutions", href: "/#solutions" },
+      { label: "Industries", href: "/#industries" },
+      { label: "Technology", href: "/#technology" },
     ],
   },
 ];

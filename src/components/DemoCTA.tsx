@@ -25,7 +25,7 @@ export function DemoCTA() {
             Request a Demo
           </Button>
           <Button
-            href="#products"
+            href="/products"
             variant="secondary"
             className="!border-white/30 !bg-transparent !text-white hover:!border-white/60 hover:!bg-white/10"
           >

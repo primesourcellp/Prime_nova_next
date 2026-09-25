@@ -28,7 +28,7 @@ export function Hero() {
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="#products" className="button">
+            <Link href="/products" className="button">
               Explore our services
               <ArrowUpRight size={18} aria-hidden />
             </Link>

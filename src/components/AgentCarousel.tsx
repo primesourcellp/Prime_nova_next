@@ -16,7 +16,7 @@ const slides: Slide[] = [
     title: "Talent Pipeline",
     description:
       "Visualize every hiring stage, move candidates with clarity, and keep teams aligned from apply to offer.",
-    href: "#products",
+    href: "/products",
     accent: "teal",
   },
   {
@@ -24,7 +24,7 @@ const slides: Slide[] = [
     title: "Screening Workspace",
     description:
       "Score applicants against role criteria, surface the strongest fits, and move faster with structured reviews.",
-    href: "#products",
+    href: "/products",
     accent: "sky",
   },
   {
@@ -32,7 +32,7 @@ const slides: Slide[] = [
     title: "Hiring Insights",
     description:
       "Know which roles are stalling, where talent pools are strongest, and what needs attention next.",
-    href: "#products",
+    href: "/products",
     accent: "slate",
   },
   {
@@ -50,6 +50,14 @@ const slides: Slide[] = [
       "Create briefs, scorecards, and hiring plans in one place designed for clearer, faster decisions.",
     href: "#solutions",
     accent: "sky",
+  },
+  {
+    id: "subscription",
+    title: "Subscription Module",
+    description:
+      "Configure plans, track renewals, and control entitlements so every customer stays on the right subscription.",
+    href: "/products",
+    accent: "slate",
   },
 ];
 

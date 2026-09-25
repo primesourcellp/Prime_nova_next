@@ -6,12 +6,12 @@ import { useEffect, useState } from "react";
 import { Button } from "./Button";
 
 const navLinks = [
-  { label: "Products", href: "#products" },
-  { label: "Solutions", href: "#solutions" },
-  { label: "Industries", href: "#industries" },
-  { label: "Technology", href: "#technology" },
-  { label: "Resources", href: "#resources" },
-  { label: "About", href: "#about" },
+  { label: "Products", href: "/products" },
+  { label: "Solutions", href: "/#solutions" },
+  { label: "Industries", href: "/#industries" },
+  { label: "Technology", href: "/#technology" },
+  { label: "Resources", href: "/#resources" },
+  { label: "About", href: "/#about" },
 ];
 
 export function Navbar() {
@@ -65,12 +65,12 @@ export function Navbar() {
 
         <div className="hidden items-center gap-5 lg:flex">
           <Link
-            href="#contact"
+            href="/#contact"
             className="text-[13px] font-medium text-foreground/80 transition-colors hover:text-foreground"
           >
             Contact
           </Link>
-          <Button href="#demo" className="!py-2 !text-[13px]">
+          <Button href="/#demo" className="py-2! text-[13px]!">
             Request a Demo
           </Button>
         </div>
@@ -114,14 +114,14 @@ export function Navbar() {
             </Link>
           ))}
           <Link
-            href="#contact"
+            href="/#contact"
             className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-soft"
             onClick={() => setOpen(false)}
           >
             Contact
           </Link>
           <div className="mt-3 px-1" onClick={() => setOpen(false)}>
-            <Button href="#demo" className="w-full">
+            <Button href="/#demo" className="w-full">
               Request a Demo
             </Button>
           </div>
