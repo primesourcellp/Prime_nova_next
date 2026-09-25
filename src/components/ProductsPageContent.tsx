@@ -108,12 +108,20 @@ export function ProductsPageContent() {
                 <p className="mt-3 flex-1 text-[15px] leading-relaxed text-muted">
                   {planSummary(app)}
                 </p>
-                <Link
-                  href={`/products/${encodeURIComponent(app.application_code)}`}
-                  className="mt-6 inline-flex text-sm font-semibold text-primary underline-offset-4 transition-colors group-hover:underline"
-                >
-                  View product →
-                </Link>
+                <div className="mt-6 flex flex-wrap gap-4">
+                  <Link
+                    href={`/products/${encodeURIComponent(app.application_code)}`}
+                    className="inline-flex text-sm font-semibold text-primary underline-offset-4 transition-colors group-hover:underline"
+                  >
+                    View product →
+                  </Link>
+                  <Link
+                    href={`/login?application=${encodeURIComponent(app.application_code)}`}
+                    className="inline-flex text-sm font-medium text-muted underline-offset-4 transition-colors hover:text-foreground hover:underline"
+                  >
+                    Sign in
+                  </Link>
+                </div>
               </Reveal>
             ))}
           </div>

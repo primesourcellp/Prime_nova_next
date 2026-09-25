@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Reveal } from "./Reveal";
 import { Button } from "./Button";
+import { PlanComparison } from "./PlanComparison";
 import {
   type CatalogApplication,
   fetchApplicationByCode,
@@ -115,16 +116,19 @@ export function ProductDetailContent({ code }: { code: string }) {
                   ? `Choose a plan for ${state.application.name}. Pricing and features are loaded live from the Subscription Module.`
                   : `${state.application.name} is in the catalog. Publish active plans in Subscription Module to show pricing here.`}
               </p>
-              {state.application.catalog_base_url ? (
-                <a
-                  href={state.application.catalog_base_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-4 inline-block text-sm font-medium text-primary underline-offset-4 hover:underline"
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Button
+                  href={`/login?application=${encodeURIComponent(state.application.application_code)}`}
                 >
-                  Open product →
-                </a>
-              ) : null}
+                  Sign in to app
+                </Button>
+                <Button
+                  href={`/register?application=${encodeURIComponent(state.application.application_code)}`}
+                  variant="secondary"
+                >
+                  Register
+                </Button>
+              </div>
             </Reveal>
 
             {state.application.plans.length > 0 && (
@@ -215,16 +219,22 @@ export function ProductDetailContent({ code }: { code: string }) {
 
                         <div className="mt-8">
                           <Button
-                            href="/#demo"
+                            href={`/register?application=${encodeURIComponent(state.application.application_code)}&plan=${encodeURIComponent(plan.code)}`}
                             className="w-full py-2.5! text-[13px]!"
                           >
-                            Request a Demo
+                            Get started
                           </Button>
                         </div>
                       </Reveal>
                     );
                   })}
                 </div>
+
+                <PlanComparison
+                  plans={state.application.plans}
+                  applicationCode={state.application.application_code}
+                  billing={billing}
+                />
               </>
             )}
           </>
