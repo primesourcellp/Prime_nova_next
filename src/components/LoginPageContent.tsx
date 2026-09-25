@@ -13,12 +13,49 @@ import {
   saveTenantSession,
 } from "@/lib/tenantAuth";
 
+/** Ensure launch URL always carries email (+ password for ATS auto-login). */
+function withDirectSignParams(
+  launchUrl: string,
+  options: {
+    email: string;
+    password?: string;
+    tenantId?: number;
+    application?: string;
+    planCode?: string | null;
+  },
+): string {
+  if (!launchUrl) return "";
+  try {
+    const url = new URL(launchUrl);
+    if (options.email) url.searchParams.set("email", options.email.trim());
+    if (options.password) {
+      url.searchParams.set("password", options.password);
+      url.searchParams.set("auto_login", "1");
+    }
+    if (options.tenantId) {
+      url.searchParams.set("subscription_tenant_id", String(options.tenantId));
+      url.searchParams.set("tenant_id", String(options.tenantId));
+    }
+    if (options.application) {
+      url.searchParams.set("application", options.application);
+    }
+    if (options.planCode) {
+      url.searchParams.set("plan", options.planCode);
+    }
+    url.searchParams.set("from", "prime-nova");
+    return url.toString();
+  } catch {
+    return launchUrl;
+  }
+}
+
 function LoginForm() {
   const searchParams = useSearchParams();
   const presetApp = searchParams.get("application") || "";
 
   const [apps, setApps] = useState<CatalogApplication[]>([]);
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [application, setApplication] = useState(presetApp);
   const [error, setError] = useState<string | null>(null);
@@ -62,6 +99,21 @@ function LoginForm() {
     setSubmitting(true);
 
     try {
+      if (!application) {
+        setError("Select an application to continue.");
+        return;
+      }
+      if (!email.trim()) {
+        setError("Email is required.");
+        return;
+      }
+      if (!password.trim()) {
+        setError(
+          "Enter your product password to open the app dashboard directly.",
+        );
+        return;
+      }
+
       const externalRef = externalRefForEmail(email);
       const access = await accessProduct({
         application,
@@ -86,25 +138,51 @@ function LoginForm() {
       }
 
       const app = apps.find((a) => a.application_code === application);
-      const launchUrl = resolveLaunchUrl(access, app);
+      let launchUrl = resolveLaunchUrl(access, app);
+
+      // Prefer provisioned temp password when present; otherwise use form password
+      const productPassword =
+        access.login?.temporary_password?.trim() || password.trim();
+
+      launchUrl = withDirectSignParams(launchUrl, {
+        email: access.email || email.trim(),
+        password: productPassword,
+        tenantId: access.tenant_id,
+        application: access.application_code || application,
+        planCode: access.plan_code,
+      });
 
       if (!launchUrl) {
-        setInfo(
+        setError(
           access.login?.message ||
-            "Access granted, but this product has no app URL configured yet. Set app_base_url in Subscription Module admin.",
+            "Access granted, but this product has no app URL configured. Set app_base_url in Subscription Module admin.",
         );
         return;
       }
 
-      if (access.login?.temporary_password) {
+      // Surface provision compile/runtime issues without blocking redirect when URL is ready
+      if (
+        access.login?.message &&
+        /compilation|error|failed/i.test(access.login.message) &&
+        !access.login.temporary_password
+      ) {
         setInfo(
-          `Opening ${access.application_name}… Check your email for login credentials if this is your first provision.`,
+          "Opening your application… If sign-in fails, restart the ATS backend and try again.",
         );
+      } else {
+        setInfo(`Opening ${access.application_name || "application"}…`);
       }
 
       openLaunchUrl(launchUrl);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Sign in failed.");
+      const message = err instanceof Error ? err.message : "Sign in failed.";
+      if (/tenant not found/i.test(message)) {
+        setError(
+          "No account found for this email. Create an account first, then sign in.",
+        );
+      } else {
+        setError(message);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -120,8 +198,8 @@ function LoginForm() {
           Sign in to your product
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-muted">
-          Uses Subscription Module tenant access (same flow as Prime Nova). You
-          will be redirected to the selected application.
+          Verifies your Subscription Module tenant, then opens TalentPrime with
+          your product credentials (no second login screen).
         </p>
       </header>
 
@@ -152,6 +230,23 @@ function LoginForm() {
           onChange={(e) => setEmail(e.target.value)}
           className="mt-1.5 w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-primary"
         />
+      </label>
+
+      <label className="block">
+        <span className="text-sm font-medium text-foreground">
+          Product password
+        </span>
+        <input
+          type="password"
+          required
+          autoComplete="current-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="mt-1.5 w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-primary"
+        />
+        <span className="mt-1 block text-xs text-muted">
+          Use the temporary password from registration (or your ATS password).
+        </span>
       </label>
 
       <label className="block">
