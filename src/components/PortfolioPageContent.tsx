@@ -1,124 +1,261 @@
+import {
+  Building2,
+  Cpu,
+  Factory,
+  GraduationCap,
+  HeartPulse,
+  House,
+  Landmark,
+  ShoppingBag,
+  Truck,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import Link from "next/link";
-import { Reveal } from "./Reveal";
+import { ArrowUpRight } from "lucide-react";
 import { Button } from "./Button";
+import { Reveal } from "./Reveal";
+import { ProjectCatalog } from "./portfolio/ProjectCatalog";
+import { ProjectMedia } from "./portfolio/ProjectVisual";
+import {
+  getFeaturedProjects,
+  portfolioCta,
+  portfolioHero,
+  portfolioIndustries,
+  portfolioProjects,
+  portfolioStats,
+  portfolioTechnologies,
+  projectPath,
+} from "@/data/portfolio";
 
-const projects = [
-  {
-    title: "Enterprise hiring platform",
-    sector: "Technology",
-    summary:
-      "Multi-team pipelines, shared scorecards, and role templates for a global hiring org.",
-  },
-  {
-    title: "Agency placement workspace",
-    sector: "Professional services",
-    summary:
-      "Client roles, shortlists, and placement progress in one structured view for recruiters.",
-  },
-  {
-    title: "High-volume screening flow",
-    sector: "Healthcare",
-    summary:
-      "Fast filters and clear stages for large applicant pools without losing decision clarity.",
-  },
-];
+const industryIcons: Record<string, LucideIcon> = {
+  Healthcare: HeartPulse,
+  Finance: Landmark,
+  Education: GraduationCap,
+  Recruitment: Users,
+  Retail: ShoppingBag,
+  Manufacturing: Factory,
+  Logistics: Truck,
+  "Real Estate": House,
+  Technology: Cpu,
+};
 
 export function PortfolioPageContent() {
+  const featured = getFeaturedProjects();
+
   return (
     <>
       <section className="hero-atmosphere relative overflow-hidden border-b border-border/40">
         <div className="relative mx-auto grid max-w-7xl lg:grid-cols-[1.05fr_0.95fr]">
           <div className="relative z-10 flex flex-col justify-center px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-28">
             <Reveal>
-              <p className="font-serif text-[clamp(2rem,4vw,2.75rem)] font-medium italic leading-none tracking-[-0.03em] text-teal">
-                Primenova
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+                {portfolioHero.kicker}
               </p>
-              <h1 className="mt-5 max-w-xl font-serif text-[clamp(2.35rem,5.2vw,3.85rem)] font-medium leading-[1.05] tracking-[-0.035em] text-foreground">
-                Portfolio of{" "}
-                <span className="text-teal">structured hiring</span> work
+              <h1 className="mt-4 max-w-xl font-serif text-[clamp(2.5rem,5.4vw,4rem)] font-medium leading-[1.05] tracking-[-0.035em] text-foreground">
+                Our{" "}
+                <span className="italic text-teal">Portfolio</span>
               </h1>
               <p className="mt-5 max-w-md text-base leading-relaxed text-muted sm:text-lg">
-                Selected engagements and product builds that show how Primenova
-                shapes hiring around the way teams operate.
+                {portfolioHero.subtitle}
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <Button href="/products">Explore products</Button>
-                <Button href="/#demo" variant="secondary">
-                  Request a demo
+                <Button href={portfolioHero.primary.href}>
+                  {portfolioHero.primary.label}
+                </Button>
+                <Button href={portfolioHero.secondary.href} variant="secondary">
+                  {portfolioHero.secondary.label}
                 </Button>
               </div>
             </Reveal>
           </div>
 
           <div
-            className="hero-visual-plane relative flex min-h-[360px] items-center justify-center border-t border-border/30 px-6 py-12 sm:min-h-[420px] sm:px-10 lg:min-h-full lg:border-l lg:border-t-0 lg:py-16"
+            className="hero-visual-plane relative min-h-[320px] overflow-hidden border-t border-border/30 lg:min-h-full lg:border-l lg:border-t-0"
             aria-hidden
           >
-            <div className="absolute inset-0 overflow-hidden">
-              <div className="absolute -right-8 top-[12%] h-44 w-44 rounded-full bg-teal/25 blur-2xl" />
-              <div className="absolute bottom-[8%] left-[10%] h-36 w-52 rounded-full bg-[rgba(253,167,4,0.18)] blur-2xl" />
-              <div className="absolute left-1/2 top-1/2 h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/15 blur-3xl" />
-            </div>
-
-            <div className="animate-gentle-float relative z-10 w-[min(100%,220px)] sm:w-[240px]">
-              <div className="relative overflow-hidden rounded-[2rem] border-[3px] border-[#9ec5c2] bg-[linear-gradient(160deg,#e8f5f3,#cfe8e4)] p-2 shadow-[0_30px_60px_rgba(15,118,110,0.22),inset_0_0_0_2px_rgba(255,255,255,0.85)]">
-                <div className="absolute left-1/2 top-3 z-20 h-2 w-[30%] -translate-x-1/2 rounded-full bg-teal/80" />
-                <video
-                  className="block h-auto w-full rounded-[1.5rem]"
-                  src="/images/portfolio-hero.mp4"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(15,118,110,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(15,118,110,0.05)_1px,transparent_1px)] bg-[size:28px_28px]" />
+            <div className="relative flex h-full items-center justify-center px-8 py-14 sm:px-12">
+              <div className="animate-gentle-float w-full max-w-sm space-y-3">
+                <Panel label="Applications" width="82%" />
+                <Panel label="Platforms" width="64%" delay />
+                <Panel label="Products" width="74%" />
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="border-b border-border/40 bg-[linear-gradient(180deg,#f7fafb_0%,#ffffff_55%,#f3f6f7_100%)]">
+      <section className="border-b border-border/40 bg-surface">
         <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
-          <Reveal>
+          <Reveal className="max-w-2xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
-              Selected work
+              Featured
             </p>
-            <h2 className="mt-3 font-serif text-[clamp(1.85rem,3.2vw,2.5rem)] font-medium tracking-[-0.03em] text-foreground">
-              Built with teams, not{" "}
-              <span className="text-teal">around them</span>
+            <h2 className="mt-3 font-serif text-[clamp(1.85rem,3.2vw,2.6rem)] font-medium tracking-[-0.03em] text-foreground">
+              Featured projects
             </h2>
           </Reveal>
 
-          <ul className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {projects.map((project, index) => (
-              <Reveal
-                key={project.title}
-                as="li"
-                delay={index * 80}
-                className="flex h-full"
-              >
-                <article className="flex h-full w-full flex-col rounded-2xl border border-border/70 bg-surface p-6 sm:p-7">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-light">
-                    {project.sector}
-                  </p>
-                  <h3 className="mt-2 font-serif text-[clamp(1.25rem,2vw,1.5rem)] font-medium tracking-[-0.02em] text-foreground">
-                    {project.title}
-                  </h3>
-                  <p className="mt-3 flex-1 text-sm leading-relaxed text-muted">
-                    {project.summary}
-                  </p>
-                  <Link
-                    href="/products"
-                    className="mt-6 inline-flex text-sm font-semibold text-primary underline-offset-4 hover:underline"
-                  >
-                    View products →
-                  </Link>
+          <ul className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2">
+            {featured.map((project, index) => (
+              <Reveal key={project.id} as="li" delay={index * 70}>
+                <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-border/70 bg-background shadow-[0_16px_40px_-28px_rgba(12,22,32,0.45)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_46px_-28px_rgba(12,22,32,0.4)]">
+                  <ProjectMedia
+                    project={project}
+                    className="aspect-[16/9] transition duration-500 group-hover:scale-[1.015]"
+                  />
+                  <div className="flex flex-1 flex-col p-6 sm:p-7">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">
+                      {project.industry}
+                    </p>
+                    <h3 className="mt-2 font-serif text-[clamp(1.5rem,2vw,1.85rem)] font-medium tracking-[-0.03em] text-foreground">
+                      {project.projectName}
+                    </h3>
+                    <p className="mt-3 flex-1 text-sm leading-relaxed text-muted sm:text-[15px]">
+                      {project.shortDescription}
+                    </p>
+                    {project.technologies.length > 0 && (
+                      <p className="mt-4 text-[12px] font-medium text-foreground/70">
+                        {project.technologies.join(" · ")}
+                      </p>
+                    )}
+                    <Link
+                      href={projectPath(project)}
+                      className="mt-5 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-foreground transition-colors hover:text-primary"
+                    >
+                      View Case Study
+                      <ArrowUpRight size={16} aria-hidden />
+                    </Link>
+                  </div>
                 </article>
               </Reveal>
             ))}
           </ul>
         </div>
       </section>
+
+      <section className="border-b border-border/40 bg-[linear-gradient(180deg,#f3f6f7,#ffffff)]">
+        <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10">
+          <ul className="grid grid-cols-2 gap-8 lg:grid-cols-4">
+            {portfolioStats.map((stat, index) => (
+              <Reveal key={stat.label} as="li" delay={index * 60}>
+                <p className="font-serif text-[clamp(2rem,4vw,2.8rem)] font-medium tracking-[-0.04em] text-foreground">
+                  {stat.value}
+                </p>
+                <p className="mt-1 text-sm text-muted">{stat.label}</p>
+              </Reveal>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <ProjectCatalog projects={portfolioProjects} />
+
+      <section className="border-b border-border/40 bg-surface">
+        <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
+          <Reveal className="max-w-2xl">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+              Technology
+            </p>
+            <h2 className="mt-3 font-serif text-[clamp(1.85rem,3.2vw,2.5rem)] font-medium tracking-[-0.03em] text-foreground">
+              Technologies we build with
+            </h2>
+          </Reveal>
+          <ul className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {portfolioTechnologies.map((tech) => (
+              <li
+                key={tech}
+                className="rounded-2xl border border-border/70 bg-background px-4 py-4 text-sm font-semibold text-foreground transition duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_12px_30px_-22px_rgba(12,22,32,0.45)]"
+              >
+                {tech}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section className="border-b border-border/40">
+        <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
+          <Reveal className="max-w-2xl">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+              Industries
+            </p>
+            <h2 className="mt-3 font-serif text-[clamp(1.85rem,3.2vw,2.5rem)] font-medium tracking-[-0.03em] text-foreground">
+              Industries we have worked with
+            </h2>
+          </Reveal>
+          <ul className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {portfolioIndustries.map((name) => {
+              const Icon = industryIcons[name] ?? Building2;
+              return (
+                <li key={name}>
+                  <div className="flex items-center gap-3 rounded-2xl border border-border/70 bg-surface px-4 py-4 transition duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[0_12px_30px_-22px_rgba(15,118,110,0.45)]">
+                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary-soft text-primary">
+                      <Icon size={18} aria-hidden />
+                    </span>
+                    <span className="text-sm font-semibold text-foreground">
+                      {name}
+                    </span>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </section>
+
+      <section
+        id="start"
+        className="bg-[linear-gradient(120deg,#0f766e_0%,#0d635c_48%,#124e57_100%)] text-white"
+      >
+        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 px-5 py-16 sm:px-8 lg:flex-row lg:items-end lg:px-10 lg:py-24">
+          <Reveal className="max-w-xl">
+            <h2 className="font-serif text-[clamp(2rem,3.8vw,3rem)] font-medium tracking-[-0.03em]">
+              {portfolioCta.title}
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-white/80 sm:text-lg">
+              {portfolioCta.body}
+            </p>
+          </Reveal>
+          <div className="flex flex-wrap gap-3">
+            <Button href={portfolioCta.primary.href}>
+              {portfolioCta.primary.label}
+            </Button>
+            <Button
+              href={portfolioCta.secondary.href}
+              variant="secondary"
+              className="!border-white/35 !bg-transparent !text-white hover:!border-white/60 hover:!bg-white/10"
+            >
+              {portfolioCta.secondary.label}
+            </Button>
+          </div>
+        </div>
+      </section>
     </>
+  );
+}
+
+function Panel({
+  label,
+  width,
+  delay = false,
+}: {
+  label: string;
+  width: string;
+  delay?: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-2xl border border-white/80 bg-surface/80 p-4 shadow-[0_16px_36px_-24px_rgba(12,22,32,0.4)] backdrop-blur-sm ${
+        delay ? "ml-6 sm:ml-10" : ""
+      }`}
+    >
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-light">
+        {label}
+      </p>
+      <div className="mt-3 h-1.5 rounded-full bg-primary/20" style={{ width }} />
+      <div className="mt-2 h-1.5 w-1/2 rounded-full bg-foreground/10" />
+    </div>
   );
 }

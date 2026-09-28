@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { DemoCTA } from "@/components/DemoCTA";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
 import { PortfolioPageContent } from "@/components/PortfolioPageContent";
@@ -7,7 +6,7 @@ import { PortfolioPageContent } from "@/components/PortfolioPageContent";
 export const metadata: Metadata = {
   title: "Portfolio — Primenova",
   description:
-    "Selected work and product engagements from Primenova — hiring systems built around how teams actually work.",
+    "Explore the digital solutions and innovative products we've built for businesses across different industries.",
 };
 
 export default function PortfolioPage() {
@@ -16,7 +15,6 @@ export default function PortfolioPage() {
       <Navbar />
       <main className="flex-1">
         <PortfolioPageContent />
-        <DemoCTA />
       </main>
       <Footer />
     </>

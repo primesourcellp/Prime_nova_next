@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "./Button";
 
@@ -12,8 +13,13 @@ const navLinks = [
 ];
 
 export function Navbar() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  const linkActive = (href: string) =>
+    !href.includes("#") &&
+    (pathname === href || pathname.startsWith(`${href}/`));
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -47,19 +53,27 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden items-center gap-7 lg:flex" aria-label="Main">
-          {navLinks.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className={
-                link.label === "About"
-                  ? "rounded border border-foreground/70 px-2.5 py-1 text-[13px] font-medium text-foreground transition-all duration-200 hover:bg-foreground hover:text-background"
-                  : "relative text-[13px] font-medium text-foreground/80 transition-colors after:absolute after:-bottom-1 after:left-0 after:h-px after:w-0 after:bg-primary after:transition-all after:duration-300 hover:text-foreground hover:after:w-full"
-              }
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            const active = linkActive(link.href);
+            return (
+              <Link
+                key={link.label}
+                href={link.href}
+                aria-current={active ? "page" : undefined}
+                className={
+                  link.label === "About"
+                    ? "rounded border border-foreground/70 px-2.5 py-1 text-[13px] font-medium text-foreground transition-all duration-200 hover:bg-foreground hover:text-background"
+                    : `relative text-[13px] font-medium transition-colors after:absolute after:-bottom-1 after:left-0 after:h-px after:bg-primary after:transition-all after:duration-300 hover:text-foreground ${
+                        active
+                          ? "text-primary after:w-full"
+                          : "text-foreground/80 after:w-0 hover:after:w-full"
+                      }`
+                }
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="hidden items-center gap-5 lg:flex">
@@ -96,16 +110,22 @@ export function Navbar() {
         }`}
       >
         <nav className="flex flex-col gap-1 px-5 py-5" aria-label="Mobile">
-          {navLinks.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-soft"
-              onClick={() => setOpen(false)}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            const active = linkActive(link.href);
+            return (
+              <Link
+                key={link.label}
+                href={link.href}
+                aria-current={active ? "page" : undefined}
+                className={`rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-surface-soft ${
+                  active ? "bg-primary-soft text-primary" : "text-foreground"
+                }`}
+                onClick={() => setOpen(false)}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
           <div className="mt-3 px-1" onClick={() => setOpen(false)}>
             <Button href="/#demo" className="w-full">
               Request a Demo

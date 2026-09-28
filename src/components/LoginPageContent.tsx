@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, Suspense, useEffect, useState } from "react";
+import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { fetchPublicCatalog, type CatalogApplication } from "@/lib/subscription";
 import {
@@ -49,6 +49,9 @@ function withDirectSignParams(
   }
 }
 
+const fieldClass =
+  "mt-2 w-full border-0 border-b border-border/80 bg-transparent px-0 py-2.5 text-[15px] text-foreground outline-none transition placeholder:text-muted-light focus:border-primary";
+
 function LoginForm() {
   const searchParams = useSearchParams();
   const presetApp = searchParams.get("application") || "";
@@ -91,6 +94,11 @@ function LoginForm() {
   useEffect(() => {
     if (presetApp) setApplication(presetApp);
   }, [presetApp]);
+
+  const selectedApp = useMemo(
+    () => apps.find((a) => a.application_code === application),
+    [apps, application],
+  );
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -189,24 +197,34 @@ function LoginForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-5">
-      <header>
+    <form onSubmit={onSubmit} className="relative">
+      <Link
+        href="/products"
+        className="absolute -top-1 right-0 text-sm font-medium text-muted transition-colors hover:text-foreground"
+      >
+        Close
+      </Link>
+
+      <header className="pr-14">
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
-          Application login
+          Sign in
         </p>
-        <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-foreground">
-          Sign in to your product
+        <h1 className="mt-2 font-serif text-[clamp(1.9rem,3.6vw,2.5rem)] font-medium tracking-[-0.03em] text-foreground">
+          Sign in to your{" "}
+          <span className="italic text-teal">account</span>
         </h1>
-        <p className="mt-2 text-sm leading-relaxed text-muted">
-          Verifies your Subscription Module tenant, then opens TalentPrime with
-          your product credentials (no second login screen).
-        </p>
       </header>
+
+      {selectedApp && (
+        <p className="mt-4 text-sm text-muted">
+          <span className="font-medium text-foreground">{selectedApp.name}</span>
+        </p>
+      )}
 
       {error && (
         <div
           role="alert"
-          className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+          className="mt-5 rounded-lg border border-red-200/80 bg-red-50/80 px-4 py-3 text-sm text-red-800"
         >
           {error}
         </div>
@@ -214,93 +232,95 @@ function LoginForm() {
       {info && (
         <div
           role="status"
-          className="rounded-lg border border-primary/20 bg-primary-soft px-4 py-3 text-sm text-foreground"
+          className="mt-5 rounded-lg border border-primary/20 bg-primary-soft px-4 py-3 text-sm text-foreground"
         >
           {info}
         </div>
       )}
 
-      <label className="block">
-        <span className="text-sm font-medium text-foreground">Email</span>
-        <input
-          type="email"
-          required
-          autoComplete="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="mt-1.5 w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-primary"
-        />
-      </label>
+      <section className="mt-8 space-y-6">
+        <div className="grid gap-6 sm:grid-cols-2">
+          <label className="block">
+            <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-muted">
+              Work email
+            </span>
+            <input
+              type="email"
+              required
+              autoComplete="email"
+              placeholder="you@company.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={fieldClass}
+            />
+          </label>
 
-      <label className="block">
-        <span className="text-sm font-medium text-foreground">
-          Product password
-        </span>
-        <input
-          type="password"
-          required
-          autoComplete="current-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="mt-1.5 w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-primary"
-        />
-        <span className="mt-1 block text-xs text-muted">
-          Use the temporary password from registration (or your ATS password).
-        </span>
-      </label>
+          <label className="block">
+            <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-muted">
+              Company
+            </span>
+            <input
+              type="text"
+              autoComplete="organization"
+              placeholder="Acme Hiring Ltd"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+              className={fieldClass}
+            />
+          </label>
+        </div>
 
-      <label className="block">
-        <span className="text-sm font-medium text-foreground">
-          Company name{" "}
-          <span className="font-normal text-muted">(optional)</span>
-        </span>
-        <input
-          type="text"
-          autoComplete="organization"
-          value={companyName}
-          onChange={(e) => setCompanyName(e.target.value)}
-          className="mt-1.5 w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-primary"
-        />
-      </label>
+        <div className="grid gap-6 sm:grid-cols-2">
+          <label className="block">
+            <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-muted">
+              Password
+            </span>
+            <input
+              type="password"
+              required
+              autoComplete="current-password"
+              placeholder="Product password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={fieldClass}
+            />
+          </label>
 
-      <label className="block">
-        <span className="text-sm font-medium text-foreground">Application</span>
-        <select
-          required
-          value={application}
-          onChange={(e) => setApplication(e.target.value)}
-          className="mt-1.5 w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-primary"
+          <label className="block">
+            <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-muted">
+              Application
+            </span>
+            <select
+              required
+              value={application}
+              onChange={(e) => setApplication(e.target.value)}
+              className={`${fieldClass} cursor-pointer`}
+            >
+              {apps.length === 0 && (
+                <option value="">Loading applications…</option>
+              )}
+              {apps.map((app) => (
+                <option key={app.application_code} value={app.application_code}>
+                  {app.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <button
+          type="submit"
+          disabled={submitting || !application}
+          className="inline-flex items-center justify-center rounded-lg bg-[#7eaea2] px-7 py-3 text-sm font-semibold text-white transition hover:bg-[#6d9d91] disabled:cursor-not-allowed disabled:opacity-55"
         >
-          {apps.length === 0 && <option value="">Loading applications…</option>}
-          {apps.map((app) => (
-            <option key={app.application_code} value={app.application_code}>
-              {app.name} ({app.application_code})
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <button
-        type="submit"
-        disabled={submitting || !application}
-        className="inline-flex w-full items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {submitting ? "Signing in…" : "Sign in to application"}
-      </button>
-
-      <p className="text-center text-sm text-muted">
-        New here?{" "}
-        <Link
-          href={
-            application
-              ? `/register?application=${encodeURIComponent(application)}`
-              : "/register"
-          }
-          className="font-medium text-primary underline-offset-4 hover:underline"
-        >
-          Create an account
-        </Link>
-      </p>
+          {submitting ? "Signing in…" : "Sign in"}
+        </button>
+        <p className="text-xs leading-relaxed text-muted sm:max-w-[14rem] sm:text-right">
+          We’ll open your product workspace when you’re signed in.
+        </p>
+      </div>
     </form>
   );
 }
