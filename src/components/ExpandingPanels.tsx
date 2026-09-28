@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { Reveal } from "./Reveal";
 
 type Panel = {
   id: string;
@@ -54,7 +55,7 @@ export function ExpandingPanels() {
       className="scroll-mt-20 border-t border-border/70 bg-background"
     >
       <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-24">
-        <div className="mx-auto mb-10 max-w-2xl text-center sm:mb-12">
+        <Reveal className="mx-auto mb-10 max-w-2xl text-center sm:mb-12">
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
             In practice
           </p>
@@ -62,7 +63,7 @@ export function ExpandingPanels() {
             How Primenova fits your{" "}
             <span className="text-teal">hiring flow</span>
           </h2>
-        </div>
+        </Reveal>
 
         {/* Desktop / tablet: horizontal expand */}
         <div
@@ -73,12 +74,14 @@ export function ExpandingPanels() {
             const expanded = active === index;
 
             return (
-              <article
+              <Reveal
                 key={panel.id}
+                delay={index * 90}
+                className={`relative min-w-0 ${expanded ? "flex-[3.2]" : "flex-[1]"}`}
+              >
+              <article
                 onMouseEnter={() => setActive(index)}
-                className={`group relative min-w-0 cursor-pointer overflow-hidden rounded-xl transition-[flex-grow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                  expanded ? "flex-[3.2]" : "flex-[1]"
-                }`}
+                className="group relative h-full min-w-0 cursor-pointer overflow-hidden rounded-xl transition-[flex-grow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
               >
                 <Image
                   src={panel.image}
@@ -118,6 +121,7 @@ export function ExpandingPanels() {
                   </p>
                 </div>
               </article>
+              </Reveal>
             );
           })}
         </div>
@@ -128,8 +132,8 @@ export function ExpandingPanels() {
             const expanded = active === index;
 
             return (
+              <Reveal key={panel.id} delay={index * 80}>
               <article
-                key={panel.id}
                 onClick={() => setActive(index)}
                 className={`relative overflow-hidden rounded-xl transition-[height] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
                   expanded ? "h-[420px]" : "h-[160px]"
@@ -167,6 +171,7 @@ export function ExpandingPanels() {
                   </p>
                 </div>
               </article>
+              </Reveal>
             );
           })}
         </div>

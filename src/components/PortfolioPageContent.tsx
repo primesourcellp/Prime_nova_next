@@ -124,7 +124,7 @@ export function PortfolioPageContent() {
                       href={projectPath(project)}
                       className="mt-5 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-foreground transition-colors hover:text-primary"
                     >
-                      View Case Study
+                      View Details
                       <ArrowUpRight size={16} aria-hidden />
                     </Link>
                   </div>
@@ -163,13 +163,15 @@ export function PortfolioPageContent() {
             </h2>
           </Reveal>
           <ul className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {portfolioTechnologies.map((tech) => (
-              <li
+            {portfolioTechnologies.map((tech, index) => (
+              <Reveal
                 key={tech}
+                as="li"
+                delay={(index % 4) * 60}
                 className="rounded-2xl border border-border/70 bg-background px-4 py-4 text-sm font-semibold text-foreground transition duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_12px_30px_-22px_rgba(12,22,32,0.45)]"
               >
                 {tech}
-              </li>
+              </Reveal>
             ))}
           </ul>
         </div>
@@ -186,10 +188,10 @@ export function PortfolioPageContent() {
             </h2>
           </Reveal>
           <ul className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {portfolioIndustries.map((name) => {
+            {portfolioIndustries.map((name, index) => {
               const Icon = industryIcons[name] ?? Building2;
               return (
-                <li key={name}>
+                <Reveal key={name} as="li" delay={(index % 3) * 70}>
                   <div className="flex items-center gap-3 rounded-2xl border border-border/70 bg-surface px-4 py-4 transition duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[0_12px_30px_-22px_rgba(15,118,110,0.45)]">
                     <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary-soft text-primary">
                       <Icon size={18} aria-hidden />
@@ -198,7 +200,7 @@ export function PortfolioPageContent() {
                       {name}
                     </span>
                   </div>
-                </li>
+                </Reveal>
               );
             })}
           </ul>

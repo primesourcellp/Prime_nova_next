@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Reveal } from "./Reveal";
 
 type Slide = {
   id: string;
@@ -197,7 +198,7 @@ export function AgentCarousel() {
         }
       >
         <div className="mx-auto w-full max-w-7xl px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-24">
-          <div className="mx-auto mb-10 max-w-2xl text-center sm:mb-12">
+          <Reveal className="mx-auto mb-10 max-w-2xl text-center sm:mb-12">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
               Product suite
             </p>
@@ -205,7 +206,7 @@ export function AgentCarousel() {
               Built for every stage of{" "}
               <span className="text-teal">structured hiring</span>
             </h2>
-          </div>
+          </Reveal>
 
           <div className="relative">
             <button

@@ -1,12 +1,13 @@
 import { ArrowUpRight, Check } from "lucide-react";
 import Link from "next/link";
 import AnimatedHero from "./animated-hero";
+import { Reveal } from "./Reveal";
 
 export function Hero() {
   return (
     <section className="hero-source-band">
       <div className="shell hero-grid">
-        <div className="hero-copy">
+        <Reveal className="hero-copy">
           <div className="hero-kicker">
             <span>✳</span> SOFTWARE. WITH POSSIBILITIES.
           </div>
@@ -47,7 +48,7 @@ export function Hero() {
               <Check className="text-teal" size={14} /> Designed for people
             </span>
           </div>
-        </div>
+        </Reveal>
 
         <AnimatedHero />
       </div>

@@ -9,6 +9,7 @@ import {
   type PortfolioCategory,
   type PortfolioProject,
 } from "@/data/portfolio";
+import { Reveal } from "@/components/Reveal";
 import { ProjectMedia } from "./ProjectVisual";
 
 export function ProjectCatalog({ projects }: { projects: PortfolioProject[] }) {
@@ -30,7 +31,7 @@ export function ProjectCatalog({ projects }: { projects: PortfolioProject[] }) {
       className="scroll-mt-20 border-b border-border/40 bg-[linear-gradient(180deg,#f7fafb_0%,#ffffff_42%,#f3f6f7_100%)]"
     >
       <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <Reveal className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
               Projects
@@ -42,7 +43,7 @@ export function ProjectCatalog({ projects }: { projects: PortfolioProject[] }) {
           <p className="text-sm tabular-nums text-muted">
             {visible.length} {visible.length === 1 ? "project" : "projects"}
           </p>
-        </div>
+        </Reveal>
 
         <div
           className="mt-8 flex gap-2 overflow-x-auto pb-1 sm:flex-wrap"
@@ -74,11 +75,19 @@ export function ProjectCatalog({ projects }: { projects: PortfolioProject[] }) {
             No projects in this category yet.
           </p>
         ) : (
-          <ul className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {visible.map((project) => (
-              <li key={project.id}>
+          <ul
+            key={category}
+            className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3"
+          >
+            {visible.map((project, index) => (
+              <Reveal
+                key={project.id}
+                as="li"
+                delay={index * 60}
+                className="h-full"
+              >
                 <ProjectCard project={project} />
-              </li>
+              </Reveal>
             ))}
           </ul>
         )}
@@ -123,7 +132,7 @@ function ProjectCard({ project }: { project: PortfolioProject }) {
           href={href}
           className="mt-5 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-foreground transition-colors hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
-          View Project
+          View Details
           <ArrowUpRight size={16} aria-hidden />
         </Link>
       </div>

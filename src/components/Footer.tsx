@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Reveal } from "./Reveal";
 
 const columns = [
   {
@@ -33,6 +34,7 @@ export function Footer() {
     <footer className="border-t border-border/40 bg-[linear-gradient(180deg,#f3f6f7_0%,#eaf0f2_100%)]">
       <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10">
         <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+          <Reveal>
           <div id="about">
             <Image
               src="/images/primenova-logo.png"
@@ -54,10 +56,11 @@ export function Footer() {
               </a>
             </p>
           </div>
+          </Reveal>
 
-          {columns.map((column) => (
+          {columns.map((column, index) => (
+            <Reveal key={column.title} delay={(index + 1) * 70}>
             <div
-              key={column.title}
               id={column.title === "Company" ? "resources" : undefined}
             >
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-light">
@@ -76,6 +79,7 @@ export function Footer() {
                 ))}
               </ul>
             </div>
+            </Reveal>
           ))}
         </div>
 

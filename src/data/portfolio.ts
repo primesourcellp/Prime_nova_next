@@ -35,6 +35,14 @@ export type FeatureIcon =
   | "layers"
   | "search";
 
+export type StackGroupName =
+  | "Frontend"
+  | "Backend"
+  | "Database"
+  | "APIs / Integrations"
+  | "Cloud / Deployment"
+  | "Other Tools";
+
 export type PortfolioProject = {
   id: string;
   projectName: string;
@@ -49,10 +57,16 @@ export type PortfolioProject = {
   status: ProjectStatus;
   shortDescription: string;
   description: string;
+  /** Who the product is for. Omitted on the page when empty. */
+  audience?: string;
+  /** Stated aims of the work. Omitted on the page when empty. */
+  objectives?: string[];
   challenge: string;
   solution: string;
   features: { title: string; description: string; icon: FeatureIcon }[];
   technologies: string[];
+  /** Known groups only. Empty groups stay off the page. */
+  stack?: { group: StackGroupName; items: string[] }[];
   /** Public image paths. Empty until real screenshots are added under /public. */
   images: string[];
   /** Phone screen recording. Shown in a mobile frame on the card and case study. */
@@ -131,6 +145,13 @@ export const portfolioProjects: PortfolioProject[] = [
       "Multi-tenant CRM platform designed to manage customers, leads, sales activities, users, and business operations.",
     description:
       "SalesFlow CRM is a multi-tenant CRM for customers, leads, sales activities, users, and day-to-day business operations. Each tenant keeps its own pipeline and its own people.",
+    audience:
+      "Sales teams that manage customers, leads, users, and operations, with a separate workspace for each company.",
+    objectives: [
+      "Keep customers and leads on one record.",
+      "Keep sales activities with the customer they belong to.",
+      "Give each tenant its own users and pipeline.",
+    ],
     challenge:
       "Leads, customers, and sales activity were split across inboxes and spreadsheets, so the team could not see one picture of the business.",
     solution:
@@ -158,6 +179,11 @@ export const portfolioProjects: PortfolioProject[] = [
       },
     ],
     technologies: ["React", "TypeScript", "FastAPI", "PostgreSQL"],
+    stack: [
+      { group: "Frontend", items: ["React", "TypeScript"] },
+      { group: "Backend", items: ["FastAPI"] },
+      { group: "Database", items: ["PostgreSQL"] },
+    ],
     images: [],
     featured: true,
     visual: "crm",
@@ -182,6 +208,12 @@ export const portfolioProjects: PortfolioProject[] = [
       "Applicant tracking system for roles, candidates, and every stage of a hire.",
     description:
       "TalentPrime is an ATS. Recruiting teams use it to track applicants against open roles, from the first application through the hiring decision.",
+    audience: "Recruiting teams tracking applicants against open roles.",
+    objectives: [
+      "Track applicants on the role they applied for.",
+      "Show the stage of each candidate.",
+      "Keep the hiring decision on the record.",
+    ],
     challenge:
       "Applicants, roles, and decisions get split across inboxes and spreadsheets, so nobody can see where a hire actually stands.",
     solution:
@@ -233,6 +265,12 @@ export const portfolioProjects: PortfolioProject[] = [
       "Timesheet software for recording time against the work it belongs to.",
     description:
       "TrackPrime is a timesheet product. People enter the time they spend, and that time stays on a sheet the team can use.",
+    audience: "Teams that record time against the work it belongs to.",
+    objectives: [
+      "Record hours where the work happened.",
+      "Keep a period of work on one sheet.",
+      "Look up hours in one place.",
+    ],
     challenge:
       "Time gets written down later, in different places, so a week of work is hard to reconstruct.",
     solution:
@@ -279,6 +317,12 @@ export const portfolioProjects: PortfolioProject[] = [
       "Billing software for charges, invoices, and what has already been billed.",
     description:
       "Billing is billing software. It is the system for charges and invoices, so billing is not assembled in a separate spreadsheet.",
+    audience: "Teams that keep charges and invoices in one billing system.",
+    objectives: [
+      "Record what is owed as a charge.",
+      "Produce invoices from the billing record.",
+      "Keep a visible history of what has been billed.",
+    ],
     challenge:
       "Charges and invoices drift when billing is rebuilt by hand outside a system made for it.",
     solution:
@@ -326,6 +370,12 @@ export const portfolioProjects: PortfolioProject[] = [
       "A mobile application and a web application for the same Stayeasy product.",
     description:
       "Stayeasy is both a mobile application and a web application. People can use it on a phone and in the browser.",
+    audience: "People who use Stayeasy on a phone and in the browser.",
+    objectives: [
+      "Offer Stayeasy as a mobile application.",
+      "Offer the same product as a web application.",
+      "Keep mobile and web as one product.",
+    ],
     challenge:
       "The product needed to work in the hand and in the browser, not as two unrelated tools.",
     solution:
@@ -363,44 +413,62 @@ export const portfolioProjects: PortfolioProject[] = [
     projectName: "Voxelhaus",
     slug: "voxelhaus",
     category: "Website",
-    industry: "Website",
+    industry: "Real Estate",
     clientName: "",
     year: "",
     duration: "",
     status: "Completed",
-    shortDescription: "The Voxelhaus website.",
+    shortDescription:
+      "Floor plans, virtual staging, and photo editing for real estate professionals.",
     description:
-      "Voxelhaus is a website. It is the public site for Voxelhaus, built to present the brand on the web.",
+      "Voxelhaus consultancy turns spaces into stunning experiences. The site covers floor plans, virtual staging, and photo editing, with confidential, professional visuals for real estate agents, homeowners, and designers.",
+    audience:
+      "Real estate agents, homeowners, and designers who need property visuals.",
+    objectives: [
+      "Present floor plans, virtual staging, and photo editing.",
+      "Give visitors a way to request a quote.",
+      "Publish the consultancy services on one site.",
+    ],
     challenge:
-      "Voxelhaus needed a website of its own, a place people can find the company online.",
+      "Real estate listings need clear floor plans, staged rooms, and edited photos so a property can stand out.",
     solution:
-      "We designed and built the Voxelhaus website as the public face of the brand.",
+      "www.voxelhausconsultancy.com presents those services in one place: 2D and 3D floor plans, virtual staging, Photoshop work, and real estate marketing, with a quote and contact path for the Tenkasi office.",
     features: [
       {
-        title: "Public website",
-        description: "A site people can open to learn about Voxelhaus.",
-        icon: "search",
-      },
-      {
-        title: "Brand pages",
-        description: "The site carries the Voxelhaus name and story.",
+        title: "Floor plans",
+        description:
+          "2D floor plans, 3D floor plans, and floor plan redraws for property marketing.",
         icon: "layers",
       },
       {
-        title: "Responsive layout",
-        description: "The website is built to read on a phone and on a desk.",
+        title: "Virtual staging",
+        description:
+          "Empty rooms staged as living rooms, bedrooms, and kitchens.",
+        icon: "search",
+      },
+      {
+        title: "Photoshop works",
+        description:
+          "Photo enhancement, object removal, and sky replacement.",
         icon: "flow",
+      },
+      {
+        title: "Real estate marketing",
+        description:
+          "3D visualization, video editing, and marketing materials.",
+        icon: "chart",
       },
     ],
     technologies: [],
     images: [],
+    projectUrl: "https://www.voxelhausconsultancy.com/",
     featured: false,
     visual: "design",
     tone: "teal",
     results: [
-      "Voxelhaus has a website of its own.",
-      "Visitors can find the brand on the web.",
-      "The site is the public presentation of Voxelhaus.",
+      "The public site is live at www.voxelhausconsultancy.com.",
+      "The site states 500+ projects completed and 100+ clients.",
+      "Visitors can request a quote or reach the Tenkasi office.",
     ],
   },
   {
@@ -416,6 +484,12 @@ export const portfolioProjects: PortfolioProject[] = [
     shortDescription: "The Intellects website.",
     description:
       "Intellects is a website. It is the public site for Intellects, built to present the brand on the web.",
+    audience: "People looking for Intellects on the web.",
+    objectives: [
+      "Give Intellects a public website.",
+      "Carry the brand name on the site.",
+      "Read clearly on a phone and on a desk.",
+    ],
     challenge:
       "Intellects needed a website of its own, a place people can find the company online.",
     solution:
@@ -453,45 +527,57 @@ export const portfolioProjects: PortfolioProject[] = [
     projectName: "Primesource",
     slug: "primesource",
     category: "Website",
-    industry: "Website",
+    industry: "Software",
     clientName: "",
     year: "",
     duration: "",
     status: "Completed",
-    shortDescription: "The Primesource website.",
+    shortDescription:
+      "Software delivery through technology, agile methods, and industry expertise, with digital marketing on the same site.",
     description:
-      "Primesource is a website. It is the public site for Primesource, built to present the brand on the web.",
+      "primesourcellp.com is the Primesource website. It describes a development process that combines cutting-edge technology, agile methodologies, and deep industry expertise to deliver software that enhances efficiency, improves performance, and drives growth. The site also presents digital marketing.",
+    audience:
+      "Visitors learning how Primesource builds software and how digital marketing fits that work.",
+    objectives: [
+      "Explain the development process on the public site.",
+      "State what the software work is meant to improve.",
+      "Present digital marketing on the same site.",
+    ],
     challenge:
-      "Primesource needed a website of its own, a place people can find the company online.",
+      "The site has to explain how Primesource builds software, and it has to present digital marketing as part of that work.",
     solution:
-      "We designed and built the Primesource website as the public face of the brand.",
+      "The public site at primesourcellp.com walks through the development process: cutting-edge technology, agile methodologies, and deep industry expertise, aimed at software that enhances efficiency, improves performance, and drives growth. Digital marketing sits on the same site.",
     features: [
       {
-        title: "Public website",
-        description: "A site people can open to learn about Primesource.",
-        icon: "search",
-      },
-      {
-        title: "Brand pages",
-        description: "The site carries the Primesource name and story.",
-        icon: "layers",
-      },
-      {
-        title: "Responsive layout",
-        description: "The website is built to read on a phone and on a desk.",
+        title: "Development process",
+        description:
+          "Cutting-edge technology, agile methodologies, and deep industry expertise, used together to deliver software.",
         icon: "flow",
+      },
+      {
+        title: "Software outcomes",
+        description:
+          "The site states the aim: software that enhances efficiency, improves performance, and drives growth.",
+        icon: "chart",
+      },
+      {
+        title: "Digital marketing",
+        description:
+          "Digital marketing is a section of the Primesource website, shown alongside the development work.",
+        icon: "search",
       },
     ],
     technologies: [],
     images: [],
     video: "/images/portfolio-hero.mp4",
+    projectUrl: "https://primesourcellp.com",
     featured: false,
     visual: "design",
     tone: "slate",
     results: [
-      "Primesource has a website of its own.",
-      "Visitors can find the brand on the web.",
-      "The site is the public presentation of Primesource.",
+      "The public site is live at primesourcellp.com.",
+      "Visitors can read how Primesource builds software.",
+      "Digital marketing is part of the same website.",
     ],
   },
 ];
