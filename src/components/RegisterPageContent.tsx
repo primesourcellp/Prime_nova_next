@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { fetchPublicCatalog, type CatalogApplication } from "@/lib/subscription";
 import {
   externalRefForEmail,
+  openLaunchUrl,
   registerTenant,
   resolveRegisterLaunchUrl,
   saveRegisterSuccess,
@@ -164,6 +165,31 @@ function RegisterForm({
         login: result.login,
         created: result.created,
       });
+
+      const password = result.login?.temporary_password;
+      if (launchUrl && password) {
+        try {
+          const url = new URL(launchUrl);
+          if (!url.searchParams.get("email")) {
+            url.searchParams.set("email", result.email || email.trim());
+          }
+          url.searchParams.set("password", password);
+          url.searchParams.set("auto_login", "1");
+          openLaunchUrl(url.toString());
+          return;
+        } catch {
+          openLaunchUrl(launchUrl);
+          return;
+        }
+      }
+
+      if (hasPlan && result.login && result.login.provisioned === false) {
+        setError(
+          result.login.message ||
+            "Your workspace was saved, but the application could not be opened. Make sure ATS is running, then try again.",
+        );
+        return;
+      }
 
       router.push("/register/success");
     } catch (err) {
