@@ -8,7 +8,7 @@ import {
   accessProduct,
   externalRefForEmail,
   getTenantSession,
-  openLaunchUrl,
+  firstPlanFeaturePath,
   resolveLaunchUrl,
   saveTenantSession,
 } from "@/lib/tenantAuth";
@@ -22,6 +22,7 @@ function withDirectSignParams(
     tenantId?: number;
     application?: string;
     planCode?: string | null;
+    nextPath?: string;
   },
 ): string {
   if (!launchUrl) return "";
@@ -42,6 +43,9 @@ function withDirectSignParams(
     if (options.planCode) {
       url.searchParams.set("plan", options.planCode);
     }
+    if (options.nextPath) {
+      url.searchParams.set("next", options.nextPath);
+    }
     url.searchParams.set("from", "prime-nova");
     return url.toString();
   } catch {
@@ -52,9 +56,25 @@ function withDirectSignParams(
 const fieldClass =
   "mt-2 w-full border-0 border-b border-border/80 bg-transparent px-0 py-2.5 text-[15px] text-foreground outline-none transition placeholder:text-muted-light focus:border-primary";
 
+/** Open a URL in a new tab with an anchor `target`, not the current tab. */
+function openLinkInNewTab(url: string, tab: Window | null) {
+  if (tab && !tab.closed) {
+    tab.location.href = url;
+    return;
+  }
+  const link = document.createElement("a");
+  link.href = url;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}
+
 function LoginForm() {
   const searchParams = useSearchParams();
   const presetApp = searchParams.get("application") || "";
+  const presetEmail = searchParams.get("email") || "";
 
   const [apps, setApps] = useState<CatalogApplication[]>([]);
   const [email, setEmail] = useState("");
@@ -67,11 +87,10 @@ function LoginForm() {
 
   useEffect(() => {
     const session = getTenantSession();
-    if (session) {
-      setEmail(session.email);
-      setCompanyName(session.companyName);
-    }
-  }, []);
+    if (presetEmail) setEmail(presetEmail);
+    else if (session) setEmail(session.email);
+    if (session) setCompanyName(session.companyName);
+  }, [presetEmail]);
 
   useEffect(() => {
     let cancelled = false;
@@ -105,19 +124,23 @@ function LoginForm() {
     setError(null);
     setInfo(null);
     setSubmitting(true);
+    const productTab = window.open("about:blank", "_blank");
 
     try {
       if (!application) {
+        productTab?.close();
         setError("Select an application to continue.");
         return;
       }
       if (!email.trim()) {
+        productTab?.close();
         setError("Email is required.");
         return;
       }
       if (!password.trim()) {
+        productTab?.close();
         setError(
-          "Enter your product password to open the app dashboard directly.",
+          "Enter the password from your email to open your plan.",
         );
         return;
       }
@@ -139,6 +162,7 @@ function LoginForm() {
       });
 
       if (!access.access_granted) {
+        productTab?.close();
         setError(
           "No active subscription for this product. Register with a plan first, or pick another application.",
         );
@@ -158,9 +182,11 @@ function LoginForm() {
         tenantId: access.tenant_id,
         application: access.application_code || application,
         planCode: access.plan_code,
+        nextPath: firstPlanFeaturePath(access.feature_codes),
       });
 
       if (!launchUrl) {
+        productTab?.close();
         setError(
           access.login?.message ||
             "Access granted, but this product has no app URL configured. Set app_base_url in Subscription Module admin.",
@@ -168,21 +194,19 @@ function LoginForm() {
         return;
       }
 
-      // Surface provision compile/runtime issues without blocking redirect when URL is ready
       if (
         access.login?.message &&
         /compilation|error|failed/i.test(access.login.message) &&
         !access.login.temporary_password
       ) {
         setInfo(
-          "Opening your application… If sign-in fails, restart the ATS backend and try again.",
+          "If the product does not open, restart the ATS backend and try again.",
         );
-      } else {
-        setInfo(`Opening ${access.application_name || "application"}…`);
       }
 
-      openLaunchUrl(launchUrl);
+      openLinkInNewTab(launchUrl, productTab);
     } catch (err) {
+      productTab?.close();
       const message = err instanceof Error ? err.message : "Sign in failed.";
       if (/tenant not found/i.test(message)) {
         setError(
@@ -239,53 +263,37 @@ function LoginForm() {
       )}
 
       <section className="mt-8 space-y-6">
-        <div className="grid gap-6 sm:grid-cols-2">
-          <label className="block">
-            <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-muted">
-              Work email
-            </span>
-            <input
-              type="email"
-              required
-              autoComplete="email"
-              placeholder="you@company.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className={fieldClass}
-            />
-          </label>
+        <label className="block">
+          <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-muted">
+            Email
+          </span>
+          <input
+            type="email"
+            required
+            autoComplete="email"
+            placeholder="you@company.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className={fieldClass}
+          />
+        </label>
 
-          <label className="block">
-            <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-muted">
-              Company
-            </span>
-            <input
-              type="text"
-              autoComplete="organization"
-              placeholder="Acme Hiring Ltd"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              className={fieldClass}
-            />
-          </label>
-        </div>
+        <label className="block">
+          <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-muted">
+            Password
+          </span>
+          <input
+            type="password"
+            required
+            autoComplete="current-password"
+            placeholder="Password from your email"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className={fieldClass}
+          />
+        </label>
 
-        <div className="grid gap-6 sm:grid-cols-2">
-          <label className="block">
-            <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-muted">
-              Password
-            </span>
-            <input
-              type="password"
-              required
-              autoComplete="current-password"
-              placeholder="Product password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={fieldClass}
-            />
-          </label>
-
+        {!presetApp && (
           <label className="block">
             <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-muted">
               Application
@@ -306,7 +314,7 @@ function LoginForm() {
               ))}
             </select>
           </label>
-        </div>
+        )}
       </section>
 
       <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -318,7 +326,7 @@ function LoginForm() {
           {submitting ? "Signing in…" : "Sign in"}
         </button>
         <p className="text-xs leading-relaxed text-muted sm:max-w-[14rem] sm:text-right">
-          We’ll open your product workspace when you’re signed in.
+          Sign in opens your product in a new tab.
         </p>
       </div>
     </form>

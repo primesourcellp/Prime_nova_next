@@ -1,11 +1,12 @@
 "use client";
 
+import { Check } from "lucide-react";
+import Link from "next/link";
 import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { fetchPublicCatalog, type CatalogApplication } from "@/lib/subscription";
 import {
   externalRefForEmail,
-  openLaunchUrl,
   registerTenant,
   resolveRegisterLaunchUrl,
   saveRegisterSuccess,
@@ -34,7 +35,6 @@ function RegisterForm({
   onClose,
   className = "",
 }: RegisterFormProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const presetApp = presetAppProp ?? searchParams.get("application") ?? "";
   const presetPlan = presetPlanProp ?? searchParams.get("plan") ?? "";
@@ -51,6 +51,8 @@ function RegisterForm({
   );
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [successOpen, setSuccessOpen] = useState(false);
+  const [loginHref, setLoginHref] = useState("/login");
 
   useEffect(() => {
     let cancelled = false;
@@ -77,6 +79,10 @@ function RegisterForm({
   useEffect(() => {
     if (presetPlan) setPlanCode(presetPlan);
   }, [presetPlan]);
+
+  useEffect(() => {
+    if (searchParams.get("created") === "1") setSuccessOpen(true);
+  }, [searchParams]);
 
   useEffect(() => {
     if (presetBilling) setBillingCycle(presetBilling);
@@ -164,24 +170,8 @@ function RegisterForm({
         launchUrl,
         login: result.login,
         created: result.created,
+        featureCodes: result.feature_codes,
       });
-
-      const password = result.login?.temporary_password;
-      if (launchUrl && password) {
-        try {
-          const url = new URL(launchUrl);
-          if (!url.searchParams.get("email")) {
-            url.searchParams.set("email", result.email || email.trim());
-          }
-          url.searchParams.set("password", password);
-          url.searchParams.set("auto_login", "1");
-          openLaunchUrl(url.toString());
-          return;
-        } catch {
-          openLaunchUrl(launchUrl);
-          return;
-        }
-      }
 
       if (hasPlan && result.login && result.login.provisioned === false) {
         setError(
@@ -191,7 +181,13 @@ function RegisterForm({
         return;
       }
 
-      router.push("/register/success");
+      const planQuery = result.plan_code
+        ? `&plan=${encodeURIComponent(result.plan_code)}`
+        : "";
+      setLoginHref(
+        `/login?application=${encodeURIComponent(applicationCode)}&email=${encodeURIComponent(result.email || email.trim())}${planQuery}`,
+      );
+      setSuccessOpen(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed.");
     } finally {
@@ -208,6 +204,39 @@ function RegisterForm({
 
   return (
     <form onSubmit={onSubmit} className={`relative ${className}`}>
+      {successOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#0c1620]/45 p-5"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="account-created-title"
+        >
+          <div className="w-full max-w-sm rounded-2xl bg-surface px-8 py-10 text-center shadow-[0_24px_60px_-28px_rgba(12,22,32,0.45)]">
+            <span className="mx-auto inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary-soft text-primary">
+              <Check size={32} strokeWidth={2.5} aria-hidden />
+            </span>
+            <h2
+              id="account-created-title"
+              className="mt-5 font-serif text-2xl font-medium tracking-[-0.03em] text-foreground"
+            >
+              Account created successfully
+            </h2>
+            <Link
+              href={loginHref}
+              className="mt-8 inline-flex w-full items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover"
+            >
+              Sign in
+            </Link>
+            <button
+              type="button"
+              onClick={() => setSuccessOpen(false)}
+              className="mt-3 inline-flex w-full items-center justify-center text-sm font-medium text-muted transition hover:text-foreground"
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      )}
       {onClose && (
         <button
           type="button"

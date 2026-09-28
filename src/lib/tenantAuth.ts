@@ -25,6 +25,7 @@ export type ProductAccess = {
   app_base_url: string;
   catalog_base_url: string;
   launch_url: string;
+  feature_codes?: string[];
   access_granted: boolean;
   login?: {
     username?: string;
@@ -211,6 +212,29 @@ export function openLaunchUrl(url: string): void {
   window.location.assign(url);
 }
 
+/** First product screen unlocked by the selected plan. Order matches the ATS feature map. */
+const PLAN_FEATURE_PATHS: { code: string; path: string }[] = [
+  { code: "JOB_POSTING", path: "/jobs" },
+  { code: "CANDIDATE_PIPELINE", path: "/candidates" },
+  { code: "INTERVIEW_SCHEDULING", path: "/interviews" },
+  { code: "CLIENTS", path: "/clients" },
+  { code: "REPORTS", path: "/reports" },
+  { code: "AI_RESUME_MATCHING", path: "/resume-matching" },
+  { code: "SUBMISSION_EMAIL", path: "/submission-emails" },
+  { code: "ALLOCATIONS", path: "/allocations" },
+  { code: "TIME_TRACKING", path: "/time-tracking" },
+];
+
+export function firstPlanFeaturePath(
+  featureCodes?: string[] | null,
+): string {
+  const enabled = new Set(
+    (featureCodes ?? []).map((code) => code.trim().toUpperCase()),
+  );
+  const match = PLAN_FEATURE_PATHS.find((item) => enabled.has(item.code));
+  return match?.path ?? "";
+}
+
 export function resolveLaunchUrl(
   access: ProductAccess,
   app?: CatalogApplication | null,
@@ -255,6 +279,7 @@ export type RegisterSuccessPayload = {
   launchUrl: string;
   login?: TenantRegisterResult["login"];
   created: boolean;
+  featureCodes?: string[];
 };
 
 export function saveRegisterSuccess(payload: RegisterSuccessPayload): void {
