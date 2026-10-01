@@ -7,6 +7,7 @@ import { fetchPublicCatalog, type CatalogApplication } from "@/lib/subscription"
 import {
   externalRefForEmail,
   registerTenant,
+  productSignInUrl,
   resolveRegisterLaunchUrl,
   saveRegisterSuccess,
   saveTenantSession,
@@ -173,19 +174,28 @@ function RegisterForm({
       });
 
       if (hasPlan && result.login && result.login.provisioned === false) {
+        const productName = selectedApp?.name || applicationCode || "application";
         setError(
           result.login.message ||
-            "Your workspace was saved, but the application could not be opened. Make sure ATS is running, then try again.",
+            `Your workspace was saved, but ${productName} could not be opened. Make sure that application is running, then try again.`,
         );
         return;
       }
 
-      const planQuery = result.plan_code
-        ? `&plan=${encodeURIComponent(result.plan_code)}`
-        : "";
-      setLoginHref(
-        `/login?application=${encodeURIComponent(applicationCode)}&email=${encodeURIComponent(result.email || email.trim())}${planQuery}`,
-      );
+      const productUrl = productSignInUrl(launchUrl, {
+        applicationCode,
+        featureCodes: result.feature_codes,
+      });
+      if (productUrl) {
+        setLoginHref(productUrl);
+      } else {
+        const planQuery = result.plan_code
+          ? `&plan=${encodeURIComponent(result.plan_code)}`
+          : "";
+        setLoginHref(
+          `/login?application=${encodeURIComponent(applicationCode)}&email=${encodeURIComponent(result.email || email.trim())}${planQuery}`,
+        );
+      }
       setSuccessOpen(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed.");
@@ -231,12 +241,21 @@ function RegisterForm({
             >
               Account created successfully
             </h2>
-            <Link
-              href={loginHref}
-              className="mt-8 inline-flex w-full items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover"
-            >
-              Sign in
-            </Link>
+            {loginHref.startsWith("http") ? (
+              <a
+                href={loginHref}
+                className="mt-8 inline-flex w-full items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover"
+              >
+                Sign in
+              </a>
+            ) : (
+              <Link
+                href={loginHref}
+                className="mt-8 inline-flex w-full items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover"
+              >
+                Sign in
+              </Link>
+            )}
             <button
               type="button"
               onClick={() => setSuccessOpen(false)}

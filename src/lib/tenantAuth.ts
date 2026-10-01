@@ -212,8 +212,8 @@ export function openLaunchUrl(url: string): void {
   window.location.assign(url);
 }
 
-/** First product screen unlocked by the selected plan. Order matches the ATS feature map. */
-const PLAN_FEATURE_PATHS: { code: string; path: string }[] = [
+/** First product screen unlocked by the selected plan. */
+const ATS_FEATURE_PATHS: { code: string; path: string }[] = [
   { code: "JOB_POSTING", path: "/jobs" },
   { code: "CANDIDATE_PIPELINE", path: "/candidates" },
   { code: "INTERVIEW_SCHEDULING", path: "/interviews" },
@@ -225,14 +225,51 @@ const PLAN_FEATURE_PATHS: { code: string; path: string }[] = [
   { code: "TIME_TRACKING", path: "/time-tracking" },
 ];
 
+const BILLING_FEATURE_PATHS: { code: string; path: string }[] = [
+  { code: "CLIENTS", path: "/clients" },
+  { code: "INVOICES", path: "/invoices" },
+  { code: "RECEIVABLES", path: "/receivables" },
+  { code: "REPORTS", path: "/reports/sales" },
+  { code: "INVENTORY", path: "/inventory" },
+  { code: "USERS", path: "/users" },
+];
+
 export function firstPlanFeaturePath(
   featureCodes?: string[] | null,
+  applicationCode?: string | null,
 ): string {
   const enabled = new Set(
     (featureCodes ?? []).map((code) => code.trim().toUpperCase()),
   );
-  const match = PLAN_FEATURE_PATHS.find((item) => enabled.has(item.code));
-  return match?.path ?? "";
+  const billing = (applicationCode || "").toLowerCase().includes("billing");
+  const table = billing ? BILLING_FEATURE_PATHS : ATS_FEATURE_PATHS;
+  const match = table.find((item) => enabled.has(item.code));
+  if (match) return match.path;
+  return billing ? "/dashboard" : "";
+}
+
+/** Keep the provisioned product login URL, and land on the first plan module. */
+export function productSignInUrl(
+  launchUrl: string,
+  options?: {
+    applicationCode?: string | null;
+    featureCodes?: string[] | null;
+  },
+): string {
+  if (!launchUrl) return "";
+  try {
+    const url = new URL(launchUrl);
+    const next = firstPlanFeaturePath(
+      options?.featureCodes,
+      options?.applicationCode,
+    );
+    if (next && !url.searchParams.get("next")) {
+      url.searchParams.set("next", next);
+    }
+    return url.toString();
+  } catch {
+    return launchUrl;
+  }
 }
 
 export function resolveLaunchUrl(

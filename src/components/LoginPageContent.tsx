@@ -182,7 +182,10 @@ function LoginForm() {
         tenantId: access.tenant_id,
         application: access.application_code || application,
         planCode: access.plan_code,
-        nextPath: firstPlanFeaturePath(access.feature_codes),
+        nextPath: firstPlanFeaturePath(
+          access.feature_codes,
+          access.application_code || application,
+        ),
       });
 
       if (!launchUrl) {
@@ -200,7 +203,7 @@ function LoginForm() {
         !access.login.temporary_password
       ) {
         setInfo(
-          "If the product does not open, restart the ATS backend and try again.",
+          "If the product does not open, make sure that application is running, then try again.",
         );
       }
 
