@@ -1,13 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { fetchPublicCatalog, type CatalogApplication } from "@/lib/subscription";
 import {
+  accessProduct,
   externalRefForEmail,
   registerTenant,
   productSignInUrl,
+  resolveLaunchUrl,
   resolveRegisterLaunchUrl,
   saveRegisterSuccess,
   saveTenantSession,
@@ -22,6 +23,27 @@ export type RegisterFormProps = {
   onClose?: () => void;
   className?: string;
 };
+
+function withAutoLogin(
+  launchUrl: string,
+  login?: { temporary_password?: string } | null,
+): string {
+  if (!launchUrl) return "";
+  try {
+    const url = new URL(launchUrl);
+    const password = login?.temporary_password?.trim();
+    if (password) {
+      url.searchParams.set("password", password);
+      url.searchParams.set("auto_login", "1");
+    }
+    if (url.searchParams.get("login_token")) {
+      url.searchParams.set("auto_login", "1");
+    }
+    return url.toString();
+  } catch {
+    return launchUrl;
+  }
+}
 
 const fieldClass =
   "mt-2 w-full border-0 border-b border-border/80 bg-transparent px-0 py-2.5 text-[15px] text-foreground outline-none transition placeholder:text-muted-light focus:border-primary";
@@ -53,6 +75,7 @@ function RegisterForm({
   const [submitting, setSubmitting] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [loginHref, setLoginHref] = useState("/login");
+  const [opening, setOpening] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -182,7 +205,7 @@ function RegisterForm({
         return;
       }
 
-      const productUrl = productSignInUrl(launchUrl, {
+      const productUrl = productSignInUrl(withAutoLogin(launchUrl, result.login), {
         applicationCode,
         featureCodes: result.feature_codes,
       });
@@ -201,6 +224,35 @@ function RegisterForm({
       setError(err instanceof Error ? err.message : "Registration failed.");
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function openWorkspace() {
+    if (loginHref.includes("login_token=") || loginHref.includes("auto_login=1")) {
+      window.location.assign(loginHref);
+      return;
+    }
+    setOpening(true);
+    setError(null);
+    try {
+      const access = await accessProduct({
+        application,
+        email: email.trim(),
+        externalRef: externalRefForEmail(email),
+        companyName: companyName.trim(),
+        provision: true,
+      });
+      let launchUrl = resolveLaunchUrl(access, selectedApp);
+      launchUrl = withAutoLogin(launchUrl, access.login);
+      if (!launchUrl) {
+        setError("Timesheet could not be opened. Make sure it is running, then try again.");
+        return;
+      }
+      window.location.assign(launchUrl);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not open Timesheet.");
+    } finally {
+      setOpening(false);
     }
   }
 
@@ -241,21 +293,14 @@ function RegisterForm({
             >
               Account created successfully
             </h2>
-            {loginHref.startsWith("http") ? (
-              <a
-                href={loginHref}
-                className="mt-8 inline-flex w-full items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover"
-              >
-                Sign in
-              </a>
-            ) : (
-              <Link
-                href={loginHref}
-                className="mt-8 inline-flex w-full items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover"
-              >
-                Sign in
-              </Link>
-            )}
+            <button
+              type="button"
+              onClick={openWorkspace}
+              disabled={opening}
+              className="mt-8 inline-flex w-full items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover disabled:opacity-60"
+            >
+              {opening ? "Opening..." : "Sign in"}
+            </button>
             <button
               type="button"
               onClick={() => setSuccessOpen(false)}
