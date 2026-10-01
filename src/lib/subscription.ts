@@ -95,23 +95,28 @@ export async function fetchApplicationByCode(
   return match ?? null;
 }
 
+const FALLBACK_PRODUCT_CODES = [
+  "ATS",
+  "PG",
+  "PrimeInvoice",
+  "Timesheet",
+  "Billing",
+  "Billing Application",
+];
+
 /** Used at build time for static export of /products/[code] */
 export async function getProductStaticParams(): Promise<{ code: string }[]> {
+  const codes = new Set(FALLBACK_PRODUCT_CODES);
   try {
     const apps = await fetchPublicCatalog();
-    if (apps.length > 0) {
-      return apps.map((app) => ({ code: app.application_code }));
+    for (const app of apps) {
+      if (app.application_code) codes.add(app.application_code);
     }
   } catch {
-    // fall through to defaults when API is offline during build
+    // Keep the fallback codes when the catalog API is offline during build.
   }
 
-  return [
-    { code: "ATS" },
-    { code: "PG" },
-    { code: "PrimeInvoice" },
-    { code: "Timesheet" },
-  ];
+  return [...codes].map((code) => ({ code }));
 }
 
 export function formatMoney(amount: string | number, currency = "INR"): string {

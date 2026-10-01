@@ -1,6 +1,5 @@
 "use client";
 
-import { Check } from "lucide-react";
 import Link from "next/link";
 import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -212,8 +211,19 @@ function RegisterForm({
           aria-labelledby="account-created-title"
         >
           <div className="w-full max-w-sm rounded-2xl bg-surface px-8 py-10 text-center shadow-[0_24px_60px_-28px_rgba(12,22,32,0.45)]">
-            <span className="mx-auto inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary-soft text-primary">
-              <Check size={32} strokeWidth={2.5} aria-hidden />
+            <span className="mx-auto block h-24 w-24 overflow-hidden rounded-full">
+              <img
+                src={encodeURI("/output-onlinegiftools (16).gif")}
+                alt=""
+                aria-hidden
+                className="max-w-none"
+                style={{
+                  width: "calc(6rem * 800 / 200)",
+                  height: "calc(6rem * 600 / 200)",
+                  marginLeft: "calc(-6rem * 296 / 200)",
+                  marginTop: "calc(-6rem * 200 / 200)",
+                }}
+              />
             </span>
             <h2
               id="account-created-title"
