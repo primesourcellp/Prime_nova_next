@@ -7,14 +7,23 @@ RewriteEngine On
 # RewriteCond %{HTTPS} off
 # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-# Serve existing files and directories as-is
+# /products/ is a real directory (one folder per product code) and the
+# listing page is products.html. Passing the directory through returns 403
+# when it has no index.html.
+RewriteCond %{REQUEST_URI} ^/(.+)/$
+RewriteCond %{DOCUMENT_ROOT}/%1/index.html !-f
+RewriteCond %{DOCUMENT_ROOT}/%1.html -f
+RewriteRule ^ /%1.html [L]
+
+# Serve existing files, and directories that actually contain an index
 RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
+RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI}index.html -f
 RewriteRule ^ - [L]
 
 # Map clean URLs to .html files (e.g. /about -> /about.html)
-RewriteCond %{REQUEST_FILENAME}.html -f
-RewriteRule ^(.+)$ $1.html [L]
+RewriteCond %{REQUEST_URI} ^/(.+?)/?$
+RewriteCond %{DOCUMENT_ROOT}/%1.html -f
+RewriteRule ^ /%1.html [L]
 
 # Fallback to index.html for client routes
 RewriteRule ^ index.html [L]

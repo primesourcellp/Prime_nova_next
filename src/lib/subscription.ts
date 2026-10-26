@@ -37,11 +37,18 @@ type PublicCatalogResponse = {
       };
 };
 
+const PRODUCTION_SUBSCRIPTION_API_URL =
+  "https://subscriptionapi.primesourcellp.com";
+
 export function getSubscriptionApiBase(): string {
-  return (
-    process.env.NEXT_PUBLIC_SUBSCRIPTION_API_URL?.replace(/\/$/, "") ||
-    "http://localhost:8000"
+  const fromEnv = process.env.NEXT_PUBLIC_SUBSCRIPTION_API_URL?.replace(
+    /\/$/,
+    "",
   );
+  if (fromEnv) return fromEnv;
+  return process.env.NODE_ENV === "production"
+    ? PRODUCTION_SUBSCRIPTION_API_URL
+    : "http://localhost:8000";
 }
 
 export async function fetchPublicCatalog(
