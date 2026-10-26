@@ -45,6 +45,11 @@ export function getSubscriptionApiBase(): string {
     /\/$/,
     "",
   );
+  // Browser calls stay on this host. Apache forwards /api/v1 to the
+  // subscription API, so the browser never makes a cross-origin request.
+  if (process.env.NODE_ENV === "production" && typeof window !== "undefined") {
+    return "";
+  }
   if (fromEnv) return fromEnv;
   return process.env.NODE_ENV === "production"
     ? PRODUCTION_SUBSCRIPTION_API_URL
