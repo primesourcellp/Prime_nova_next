@@ -61,6 +61,10 @@ export type TenantRegisterResult = {
     provisioned?: boolean;
     message?: string;
   };
+  invoice_id?: number | null;
+  invoice_number?: string | null;
+  invoice_token?: string | null;
+  invoice_filename?: string | null;
 };
 
 type Envelope<T> = {
@@ -317,6 +321,9 @@ export type RegisterSuccessPayload = {
   login?: TenantRegisterResult["login"];
   created: boolean;
   featureCodes?: string[];
+  invoiceId?: number | null;
+  invoiceToken?: string | null;
+  invoiceFilename?: string | null;
 };
 
 export function saveRegisterSuccess(payload: RegisterSuccessPayload): void {
@@ -336,4 +343,28 @@ export function getRegisterSuccess(): RegisterSuccessPayload | null {
 
 export function clearRegisterSuccess(): void {
   sessionStorage.removeItem(REGISTER_SUCCESS_KEY);
+}
+
+export async function downloadSignupInvoice(options: {
+  invoiceId: number;
+  token: string;
+  filename: string;
+}): Promise<void> {
+  const params = new URLSearchParams({
+    invoice: String(options.invoiceId),
+    token: options.token,
+  });
+  const response = await fetch(
+    `${getSubscriptionApiBase()}/api/v1/invoices/public-document/?${params.toString()}`,
+  );
+  if (!response.ok) {
+    throw new Error("Could not download the invoice.");
+  }
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = options.filename || "invoice.pdf";
+  link.click();
+  URL.revokeObjectURL(url);
 }

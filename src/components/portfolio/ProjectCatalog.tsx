@@ -1,8 +1,8 @@
 "use client";
 
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, SlidersHorizontal, X } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   portfolioCategories,
   projectPath,
@@ -14,16 +14,47 @@ import { ProjectMedia } from "./ProjectVisual";
 
 export function ProjectCatalog({ projects }: { projects: PortfolioProject[] }) {
   const [category, setCategory] = useState<PortfolioCategory>("All");
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const visible = useMemo(
-    () =>
+  useEffect(() => {
+    if (!filtersOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setFiltersOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previous;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [filtersOpen]);
+
+  function chooseCategory(next: PortfolioCategory) {
+    setCategory(next);
+    setFiltersOpen(false);
+    window.setTimeout(() => {
+      document.getElementById("projects")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 0);
+  }
+
+  const visible = useMemo(() => {
+    const filtered =
       category === "All"
         ? projects
         : projects.filter((project) =>
             (project.categories ?? [project.category]).includes(category),
-          ),
-    [category, projects],
-  );
+          );
+    if (category !== "All") return filtered;
+    return [...filtered].sort((a, b) => {
+      const aWebsite = (a.categories ?? [a.category]).includes("Website");
+      const bWebsite = (b.categories ?? [b.category]).includes("Website");
+      return Number(bWebsite) - Number(aWebsite);
+    });
+  }, [category, projects]);
 
   return (
     <section
@@ -46,29 +77,73 @@ export function ProjectCatalog({ projects }: { projects: PortfolioProject[] }) {
         </Reveal>
 
         <div
-          className="mt-8 flex gap-2 overflow-x-auto pb-1 sm:flex-wrap"
+          className="mt-8 hidden gap-2 sm:flex sm:flex-wrap"
           role="group"
           aria-label="Filter projects by category"
         >
-          {portfolioCategories.map((item) => {
-            const selected = item === category;
-            return (
-              <button
-                key={item}
-                type="button"
-                aria-pressed={selected}
-                onClick={() => setCategory(item)}
-                className={`shrink-0 rounded-full border px-3.5 py-2 text-[13px] font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
-                  selected
-                    ? "border-primary bg-primary text-white"
-                    : "border-border bg-surface text-foreground/80 hover:border-primary/40 hover:text-foreground"
-                }`}
-              >
-                {item}
-              </button>
-            );
-          })}
+          {portfolioCategories.map((item) => (
+            <FilterOption
+              key={item}
+              label={item}
+              selected={item === category}
+              onSelect={() => chooseCategory(item)}
+            />
+          ))}
         </div>
+
+        <button
+          type="button"
+          className="fixed right-0 top-1/2 z-40 flex -translate-y-1/2 flex-col items-center gap-2 rounded-l-2xl bg-primary px-2.5 py-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-white shadow-[0_12px_30px_-16px_rgba(15,118,110,0.8)] sm:hidden"
+          aria-expanded={filtersOpen}
+          aria-controls="portfolio-filters"
+          onClick={() => setFiltersOpen(true)}
+        >
+          <SlidersHorizontal size={16} aria-hidden />
+          <span className="[writing-mode:vertical-rl]">Filter</span>
+        </button>
+
+        {filtersOpen && (
+          <div className="fixed inset-0 z-50 sm:hidden">
+            <button
+              type="button"
+              className="absolute inset-0 bg-[#0c1620]/45"
+              aria-label="Close filters"
+              onClick={() => setFiltersOpen(false)}
+            />
+            <div
+              id="portfolio-filters"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Filter projects by category"
+              className="absolute inset-y-0 right-0 flex w-[min(100%,18.5rem)] flex-col bg-surface shadow-[-16px_0_40px_-24px_rgba(12,22,32,0.45)]"
+            >
+              <div className="flex items-center justify-between border-b border-border/70 px-5 py-4">
+                <p className="font-serif text-xl font-medium tracking-[-0.02em] text-foreground">
+                  Filter
+                </p>
+                <button
+                  type="button"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full text-foreground"
+                  aria-label="Close filters"
+                  onClick={() => setFiltersOpen(false)}
+                >
+                  <X size={18} aria-hidden />
+                </button>
+              </div>
+              <div className="flex flex-1 flex-col gap-2 overflow-y-auto px-5 py-4">
+                {portfolioCategories.map((item) => (
+                  <FilterOption
+                    key={item}
+                    label={item}
+                    selected={item === category}
+                    onSelect={() => chooseCategory(item)}
+                    block
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {visible.length === 0 ? (
           <p className="mt-12 text-sm text-muted">
@@ -93,6 +168,33 @@ export function ProjectCatalog({ projects }: { projects: PortfolioProject[] }) {
         )}
       </div>
     </section>
+  );
+}
+
+function FilterOption({
+  label,
+  selected,
+  onSelect,
+  block = false,
+}: {
+  label: string;
+  selected: boolean;
+  onSelect: () => void;
+  block?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      onClick={onSelect}
+      className={`${block ? "w-full justify-start px-4 py-3 text-left text-sm" : "shrink-0 px-3.5 py-2 text-[13px]"} rounded-full border font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+        selected
+          ? "border-primary bg-primary text-white"
+          : "border-border bg-surface text-foreground/80 hover:border-primary/40 hover:text-foreground"
+      }`}
+    >
+      {label}
+    </button>
   );
 }
 

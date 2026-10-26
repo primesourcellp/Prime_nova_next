@@ -40,7 +40,7 @@ type PublicCatalogResponse = {
 export function getSubscriptionApiBase(): string {
   return (
     process.env.NEXT_PUBLIC_SUBSCRIPTION_API_URL?.replace(/\/$/, "") ||
-    "http://localhost:8000"
+    "https://subscriptionapi.primesourcellp.com"
   );
 }
 
