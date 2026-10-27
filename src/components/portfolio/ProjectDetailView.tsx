@@ -42,6 +42,10 @@ const sitePreviews: Record<
     label: "intellectsllc.com",
     allowScripts: true,
   },
+  "galent-bioscience": {
+    src: "/galent-preview.html",
+    label: "www.galentbioscience.com",
+  },
 };
 
 export function ProjectDetailView({ project }: { project: PortfolioProject }) {

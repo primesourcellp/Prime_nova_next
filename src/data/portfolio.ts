@@ -581,6 +581,60 @@ export const portfolioProjects: PortfolioProject[] = [
       "Digital marketing is part of the same website.",
     ],
   },
+  {
+    id: "galent-bioscience",
+    projectName: "Galent Bioscience",
+    slug: "galent-bioscience",
+    category: "Website",
+    industry: "Website",
+    clientName: "",
+    year: "",
+    duration: "",
+    status: "Completed",
+    shortDescription: "The Galent Bioscience website.",
+    description:
+      "Galent Bioscience is a website. It is the public site for Galent Bioscience, built to present the brand on the web.",
+    audience: "People looking for Galent Bioscience on the web.",
+    objectives: [
+      "Give Galent Bioscience a public website.",
+      "Carry the brand name on the site.",
+      "Read clearly on a phone and on a desk.",
+    ],
+    challenge:
+      "Galent Bioscience needed a website of its own, a place people can find the company online.",
+    solution:
+      "We designed and built the Galent Bioscience website as the public face of the brand.",
+    features: [
+      {
+        title: "Public website",
+        description:
+          "A site people can open to learn about Galent Bioscience.",
+        icon: "search",
+      },
+      {
+        title: "Brand pages",
+        description:
+          "The site carries the Galent Bioscience name and story.",
+        icon: "layers",
+      },
+      {
+        title: "Responsive layout",
+        description: "The website is built to read on a phone and on a desk.",
+        icon: "flow",
+      },
+    ],
+    technologies: [],
+    images: ["/images/galent-home.png"],
+    projectUrl: "https://galentbioscience.com/",
+    featured: false,
+    visual: "design",
+    tone: "mint",
+    results: [
+      "Galent Bioscience has a website of its own.",
+      "Visitors can find the brand on the web.",
+      "The site is the public presentation of Galent Bioscience.",
+    ],
+  },
 ];
 
 export function getProjectBySlug(slug: string) {

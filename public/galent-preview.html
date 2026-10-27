@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Galent Bioscience | Synchronizing Life Through Science</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        overscroll-behavior: contain;
+        background: #f7faf8;
+        color: #1f2d24;
+        font-family: Georgia, "Times New Roman", serif;
+      }
+      a,
+      button,
+      form,
+      input,
+      textarea,
+      select {
+        pointer-events: none !important;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      .top {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.9rem 1.5rem;
+        background: rgba(247, 250, 248, 0.92);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(31, 45, 36, 0.08);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        text-decoration: none;
+        color: inherit;
+      }
+      .mark {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.35rem;
+        background: #1f4d3a;
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font-family: system-ui, sans-serif;
+        font-weight: 700;
+      }
+      .brand strong {
+        display: block;
+        font-size: 0.95rem;
+        letter-spacing: 0.04em;
+      }
+      .brand span {
+        display: block;
+        font-family: system-ui, sans-serif;
+        font-size: 0.62rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #5b6b61;
+      }
+      .nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        font-family: system-ui, sans-serif;
+        font-size: 0.82rem;
+        color: #314239;
+      }
+      .nav a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .cta {
+        font-family: system-ui, sans-serif;
+        font-size: 0.8rem;
+        color: #1f4d3a;
+        text-decoration: none;
+        border-bottom: 1px solid currentColor;
+      }
+      .hero {
+        min-height: 78vh;
+        display: grid;
+        align-items: end;
+        padding: 4.5rem 1.5rem 3.5rem;
+        background:
+          linear-gradient(
+            105deg,
+            rgba(247, 250, 248, 0.94) 0%,
+            rgba(247, 250, 248, 0.72) 42%,
+            rgba(247, 250, 248, 0.18) 100%
+          ),
+          url("./images/galent-home.png") center / cover no-repeat;
+      }
+      .hero-copy {
+        max-width: 34rem;
+      }
+      .hero h1 {
+        margin: 0;
+        font-size: clamp(2.4rem, 5vw, 3.8rem);
+        font-weight: 500;
+        line-height: 1.05;
+        letter-spacing: -0.03em;
+        color: #163528;
+      }
+      .hero h1 em {
+        display: block;
+        font-style: italic;
+        color: #1f4d3a;
+      }
+      .hero p {
+        margin: 1.1rem 0 0;
+        max-width: 32rem;
+        font-family: system-ui, sans-serif;
+        font-size: 1rem;
+        line-height: 1.65;
+        color: #3d4f44;
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1.6rem;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        border-radius: 999px;
+        padding: 0.75rem 1.15rem;
+        font-family: system-ui, sans-serif;
+        font-size: 0.9rem;
+        text-decoration: none;
+      }
+      .btn-primary {
+        background: #1f4d3a;
+        color: #fff;
+      }
+      .btn-secondary {
+        border: 1px solid #1f4d3a;
+        color: #1f4d3a;
+        background: transparent;
+      }
+      .section {
+        padding: 4rem 1.5rem;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+      .eyebrow {
+        margin: 0;
+        font-family: system-ui, sans-serif;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #1f4d3a;
+      }
+      .section h2 {
+        margin: 0.7rem 0 0;
+        font-size: clamp(1.8rem, 3.4vw, 2.6rem);
+        font-weight: 500;
+        letter-spacing: -0.03em;
+        line-height: 1.15;
+      }
+      .lead {
+        margin: 1rem 0 0;
+        max-width: 40rem;
+        font-family: system-ui, sans-serif;
+        font-size: 1rem;
+        line-height: 1.7;
+        color: #4a5c52;
+      }
+      .grid {
+        display: grid;
+        gap: 1rem;
+        margin-top: 2rem;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      }
+      .card {
+        border: 1px solid rgba(31, 45, 36, 0.1);
+        background: #fff;
+        border-radius: 1rem;
+        padding: 1.2rem;
+      }
+      .card .num {
+        font-family: system-ui, sans-serif;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #1f4d3a;
+      }
+      .card h3 {
+        margin: 0.55rem 0 0;
+        font-size: 1.05rem;
+        font-weight: 500;
+      }
+      .card p {
+        margin: 0.55rem 0 0;
+        font-family: system-ui, sans-serif;
+        font-size: 0.88rem;
+        line-height: 1.55;
+        color: #5b6b61;
+      }
+      .quote {
+        margin: 2rem 0 0;
+        padding: 1.4rem 1.5rem;
+        border-left: 3px solid #1f4d3a;
+        background: #eef5f0;
+        font-size: 1.15rem;
+        line-height: 1.5;
+      }
+      .steps {
+        display: grid;
+        gap: 0.75rem;
+        margin-top: 1.8rem;
+      }
+      .step {
+        display: grid;
+        grid-template-columns: 2.5rem 1fr;
+        gap: 0.85rem;
+        align-items: start;
+        padding: 0.85rem 0;
+        border-bottom: 1px solid rgba(31, 45, 36, 0.08);
+        font-family: system-ui, sans-serif;
+      }
+      .step strong {
+        color: #1f4d3a;
+      }
+      .step span {
+        color: #314239;
+        line-height: 1.5;
+      }
+      .band {
+        background: #163528;
+        color: #f3f8f5;
+        padding: 4rem 1.5rem;
+      }
+      .band-inner {
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+      .band h2 {
+        margin: 0.7rem 0 0;
+        font-size: clamp(1.8rem, 3.4vw, 2.6rem);
+        font-weight: 500;
+      }
+      .band p {
+        margin: 1rem 0 0;
+        max-width: 38rem;
+        font-family: system-ui, sans-serif;
+        line-height: 1.7;
+        color: rgba(243, 248, 245, 0.82);
+      }
+      .footer {
+        padding: 2.5rem 1.5rem 3rem;
+        border-top: 1px solid rgba(31, 45, 36, 0.08);
+        font-family: system-ui, sans-serif;
+        font-size: 0.85rem;
+        color: #5b6b61;
+      }
+      .footer strong {
+        color: #163528;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="top">
+      <a class="brand" href="/">
+        <span class="mark">G</span>
+        <span>
+          <strong>GALENT</strong>
+          <span>BIOSCIENCE PVT. LTD.</span>
+        </span>
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <a href="/#about">About</a>
+        <a href="/#innovation">Innovation</a>
+        <a href="/#areas">Healthcare Areas</a>
+        <a href="/#products">Products</a>
+        <a href="/#responsibility">Responsibility</a>
+        <a href="/#contact">Contact</a>
+      </nav>
+      <a class="cta" href="/#values">Core Values →</a>
+    </header>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <h1>
+          Galent Bioscience
+          <em>Synchronizing Life Through Science</em>
+        </h1>
+        <p>
+          Our approach is to explore promising molecules and ingredients from
+          different areas of healthcare, understand their properties and
+          evidence, and develop them responsibly into meaningful healthcare
+          solutions.
+        </p>
+        <div class="actions">
+          <a class="btn btn-primary" href="/#about">Discover Galent →</a>
+          <a class="btn btn-secondary" href="/#approach">Our approach →</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="areas">
+      <p class="eyebrow">Where Science Meets Nature</p>
+      <h2>Healthcare areas we explore</h2>
+      <p class="lead">
+        Nature has provided humanity with an extraordinary diversity of
+        molecules and substances with biological properties.
+      </p>
+      <div class="grid">
+        <article class="card">
+          <p class="num">01</p>
+          <h3>Pharmaceuticals</h3>
+          <p>
+            Developing scientifically sound solutions addressing genuine
+            therapeutic needs.
+          </p>
+        </article>
+        <article class="card">
+          <p class="num">02</p>
+          <h3>Nutraceuticals &amp; Wellness</h3>
+          <p>
+            Exploring meaningful nutritional solutions through thoughtful
+            formulation and evidence.
+          </p>
+        </article>
+        <article class="card">
+          <p class="num">03</p>
+          <h3>Dermatology &amp; Personal Care</h3>
+          <p>
+            Creating products guided by skin science, formulation knowledge and
+            honest communication.
+          </p>
+        </article>
+        <article class="card">
+          <p class="num">04</p>
+          <h3>Healthcare Services</h3>
+          <p>
+            Developing patient-oriented healthcare initiatives addressing
+            practical and emerging needs.
+          </p>
+        </article>
+        <article class="card">
+          <p class="num">05</p>
+          <h3>Research &amp; Innovation</h3>
+          <p>
+            Exploring molecules, ingredients, combinations and opportunities
+            that may offer meaningful healthcare value.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="about">
+      <p class="eyebrow">About Galent</p>
+      <h2>Healthcare Should Never Stop Looking for Better Answers.</h2>
+      <p class="lead">
+        Galent Bioscience is a healthcare organisation driven by curiosity,
+        scientific integrity and responsible innovation. We explore meaningful
+        opportunities across healthcare to develop solutions that can create
+        genuine value for human life.
+      </p>
+      <blockquote class="quote">
+        What else could be possible?<br />
+        We investigate that question through science, evidence and responsible
+        innovation.
+      </blockquote>
+    </section>
+
+    <section class="section" id="innovation">
+      <p class="eyebrow">From Curiosity to Healthcare Solution</p>
+      <h2>Our approach to innovation</h2>
+      <div class="steps">
+        <div class="step"><strong>01</strong><span>Observe — Identify unmet needs and opportunities.</span></div>
+        <div class="step"><strong>02</strong><span>Question — Challenge assumptions and ask better questions.</span></div>
+        <div class="step"><strong>03</strong><span>Investigate — Understand the science, evidence and possibilities.</span></div>
+        <div class="step"><strong>04</strong><span>Connect — Explore where different areas of knowledge may complement each other.</span></div>
+        <div class="step"><strong>05</strong><span>Formulate — Translate promising concepts into practical solutions.</span></div>
+        <div class="step"><strong>06</strong><span>Validate — Subject ideas to scientific, safety, quality and regulatory scrutiny.</span></div>
+        <div class="step"><strong>07</strong><span>Develop — Create healthcare solutions responsibly.</span></div>
+        <div class="step"><strong>08</strong><span>Learn — Continue to evolve as science and healthcare advance.</span></div>
+      </div>
+    </section>
+
+    <section class="band" id="integrity">
+      <div class="band-inner">
+        <p class="eyebrow" style="color: rgba(243, 248, 245, 0.7)">
+          Scientific Integrity
+        </p>
+        <h2>Science Before Claims</h2>
+        <p>
+          We believe trust is earned through honesty. A healthcare company has a
+          responsibility to distinguish between what is established, promising
+          and still being investigated. We would rather make a responsible claim
+          than an attractive one.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="values">
+      <p class="eyebrow">Core Values</p>
+      <h2>What drives Galent</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>Scientific Curiosity</h3>
+          <p>We ask questions others may not have asked.</p>
+        </article>
+        <article class="card">
+          <h3>Scientific Integrity</h3>
+          <p>We let evidence guide what we develop and communicate.</p>
+        </article>
+        <article class="card">
+          <h3>Responsible Innovation</h3>
+          <p>We pursue meaningful difference, not novelty for its own sake.</p>
+        </article>
+        <article class="card">
+          <h3>Patient-Centricity</h3>
+          <p>We never lose sight of the person behind the product.</p>
+        </article>
+      </div>
+    </section>
+
+    <footer class="footer" id="contact">
+      <strong>GALENT BIOSCIENCE Pvt. Ltd.</strong>
+      <p style="margin: 0.45rem 0 0">
+        Synchronizing Life Through Science · Developed by Primesource
+      </p>
+    </footer>
+  </body>
+</html>
