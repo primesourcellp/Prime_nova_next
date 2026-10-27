@@ -15,7 +15,6 @@ import { Reveal } from "@/components/Reveal";
 import type { FeatureIcon, PortfolioProject } from "@/data/portfolio";
 import { ScrollFrame } from "@/components/ScrollFrame";
 import { ProjectMedia } from "./ProjectVisual";
-import { ScreenshotGallery } from "./ScreenshotGallery";
 
 const featureIcons: Record<FeatureIcon, LucideIcon> = {
   users: Users,
@@ -24,6 +23,25 @@ const featureIcons: Record<FeatureIcon, LucideIcon> = {
   flow: Workflow,
   layers: Layers,
   search: Search,
+};
+
+const sitePreviews: Record<
+  string,
+  { src: string; label: string; allowScripts?: boolean }
+> = {
+  primesource: {
+    src: "/primesource-preview.html",
+    label: "www.primesourcellp.com",
+  },
+  voxelhaus: {
+    src: "/voxelhaus-preview.html",
+    label: "www.voxelhausconsultancy.com",
+  },
+  intellects: {
+    src: "https://intellectsllc.com/",
+    label: "intellectsllc.com",
+    allowScripts: true,
+  },
 };
 
 export function ProjectDetailView({ project }: { project: PortfolioProject }) {
@@ -40,6 +58,7 @@ export function ProjectDetailView({ project }: { project: PortfolioProject }) {
     ],
     ["Project status", project.status],
   ].filter((item): item is [string, string] => Boolean(item[1]));
+  const sitePreview = sitePreviews[project.slug];
 
   return (
     <>
@@ -129,14 +148,22 @@ export function ProjectDetailView({ project }: { project: PortfolioProject }) {
         </div>
 
         <div className="mx-auto max-w-7xl px-5 pb-14 sm:px-8 lg:px-10">
-          <Reveal className="overflow-hidden rounded-3xl border border-white/80 shadow-[0_24px_60px_-36px_rgba(12,22,32,0.45)]">
-            <ScrollFrame>
-              <ProjectMedia
-                project={project}
-                className="aspect-[16/8] min-h-[240px]"
-              />
-            </ScrollFrame>
-          </Reveal>
+          {sitePreview ? (
+            <LiveSitePreview
+              src={sitePreview.src}
+              label={sitePreview.label}
+              allowScripts={sitePreview.allowScripts}
+            />
+          ) : (
+            <Reveal className="overflow-hidden rounded-3xl border border-white/80 shadow-[0_24px_60px_-36px_rgba(12,22,32,0.45)]">
+              <ScrollFrame>
+                <ProjectMedia
+                  project={project}
+                  className="aspect-[16/8] min-h-[240px]"
+                />
+              </ScrollFrame>
+            </Reveal>
+          )}
         </div>
       </article>
 
@@ -292,24 +319,6 @@ export function ProjectDetailView({ project }: { project: PortfolioProject }) {
         </section>
       )}
 
-      <section className="border-b border-border/40">
-        <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-20">
-          <Reveal>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
-              Interface
-            </p>
-            <h2 className="mt-3 font-serif text-[clamp(1.7rem,3vw,2.4rem)] font-medium tracking-[-0.03em] text-foreground">
-              Project screenshots
-            </h2>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">
-              Open a screen to view it larger. Use the arrows or keyboard to move
-              between screens.
-            </p>
-          </Reveal>
-          <ScreenshotGallery project={project} />
-        </div>
-      </section>
-
       <section className="border-b border-border/40 bg-[linear-gradient(180deg,#f7fafb,#ffffff)]">
         <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-20">
           <Reveal>
@@ -361,6 +370,37 @@ export function ProjectDetailView({ project }: { project: PortfolioProject }) {
         </Reveal>
       </section>
     </>
+  );
+}
+
+function LiveSitePreview({
+  src,
+  label,
+  allowScripts = false,
+}: {
+  src: string;
+  label: string;
+  allowScripts?: boolean;
+}) {
+  return (
+    <div className="overflow-hidden rounded-3xl border border-white/80 bg-white shadow-[0_24px_60px_-36px_rgba(12,22,32,0.45)]">
+      <div className="flex items-center gap-2 border-b border-border/70 bg-surface px-4 py-2.5">
+        <span className="flex shrink-0 gap-1.5" aria-hidden>
+          <span className="h-2.5 w-2.5 rounded-full bg-[#f0b4ae]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#f3d7a1]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#b7d7c5]" />
+        </span>
+        <p className="min-w-0 flex-1 truncate rounded-full bg-background px-3 py-1 text-xs font-medium text-muted">
+          {label}
+        </p>
+      </div>
+      <iframe
+        src={src}
+        title={`Live preview of ${label}`}
+        className="h-[min(78vh,860px)] w-full bg-white"
+        sandbox={allowScripts ? undefined : ""}
+      />
+    </div>
   );
 }
 

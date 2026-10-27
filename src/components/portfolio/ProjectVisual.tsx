@@ -42,7 +42,7 @@ export function ProjectMedia({
           src={src}
           alt={`${project.projectName} interface`}
           fill
-          className="object-cover"
+          className="object-cover object-left-top"
           sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
         />
       </div>

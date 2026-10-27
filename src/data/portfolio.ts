@@ -5,8 +5,8 @@
 
 export const portfolioCategories = [
   "All",
-  "Web Applications",
   "Website",
+  "Web Applications",
   "Mobile Applications",
   "CRM & ERP",
   "SaaS Products",
@@ -307,7 +307,7 @@ export const portfolioProjects: PortfolioProject[] = [
     id: "billing",
     projectName: "Billing",
     slug: "billing",
-    category: "Business Solutions",
+    category: "SaaS Products",
     industry: "Billing",
     clientName: "",
     year: "",
@@ -460,7 +460,7 @@ export const portfolioProjects: PortfolioProject[] = [
       },
     ],
     technologies: [],
-    images: [],
+    images: ["/images/voxelhaus-home.png"],
     projectUrl: "https://www.voxelhausconsultancy.com/",
     featured: false,
     visual: "design",
@@ -512,7 +512,8 @@ export const portfolioProjects: PortfolioProject[] = [
       },
     ],
     technologies: [],
-    images: [],
+    images: ["/images/intellects-home.png"],
+    projectUrl: "https://intellectsllc.com/",
     featured: false,
     visual: "design",
     tone: "mint",
@@ -568,7 +569,7 @@ export const portfolioProjects: PortfolioProject[] = [
       },
     ],
     technologies: [],
-    images: [],
+    images: ["/images/primesource-home.png"],
     video: "/images/portfolio-hero.mp4",
     projectUrl: "https://primesourcellp.com",
     featured: false,
@@ -581,10 +582,6 @@ export const portfolioProjects: PortfolioProject[] = [
     ],
   },
 ];
-
-export function getFeaturedProjects() {
-  return portfolioProjects.filter((project) => project.featured);
-}
 
 export function getProjectBySlug(slug: string) {
   return portfolioProjects.find((project) => project.slug === slug);

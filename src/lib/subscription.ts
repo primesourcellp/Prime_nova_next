@@ -41,9 +41,9 @@ const PRODUCTION_SUBSCRIPTION_API_URL =
   "https://subscriptionapi.primesourcellp.com";
 
 export function getSubscriptionApiBase(): string {
-  const fromEnv = process.env.NEXT_PUBLIC_SUBSCRIPTION_API_URL?.replace(
-    /\/$/,
-    "",
+  const fromEnv = process.env.NEXT_PUBLIC_SUBSCRIPTION_API_URL?.replace(/\/$/, "");
+
+  return fromEnv || "https://subscriptionapi.primesourcellp.com";
   );
   // Browser calls stay on this host. Apache forwards /api/v1 to the
   // subscription API, so the browser never makes a cross-origin request.

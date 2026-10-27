@@ -7,6 +7,8 @@ import {
   accessProduct,
   externalRefForEmail,
   registerTenant,
+  downloadSignupInvoice,
+  getRegisterSuccess,
   productSignInUrl,
   resolveLaunchUrl,
   resolveRegisterLaunchUrl,
@@ -76,6 +78,12 @@ function RegisterForm({
   const [successOpen, setSuccessOpen] = useState(false);
   const [loginHref, setLoginHref] = useState("/login");
   const [opening, setOpening] = useState(false);
+  const [invoiceFile, setInvoiceFile] = useState<{
+    invoiceId: number;
+    token: string;
+    filename: string;
+  } | null>(null);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -104,6 +112,14 @@ function RegisterForm({
   }, [presetPlan]);
 
   useEffect(() => {
+    const saved = getRegisterSuccess();
+    if (saved?.invoiceId && saved.invoiceToken) {
+      setInvoiceFile({
+        invoiceId: saved.invoiceId,
+        token: saved.invoiceToken,
+        filename: saved.invoiceFilename || "invoice.pdf",
+      });
+    }
     if (searchParams.get("created") === "1") setSuccessOpen(true);
   }, [searchParams]);
 
@@ -194,7 +210,17 @@ function RegisterForm({
         login: result.login,
         created: result.created,
         featureCodes: result.feature_codes,
+        invoiceId: result.invoice_id,
+        invoiceToken: result.invoice_token,
+        invoiceFilename: result.invoice_filename,
       });
+      if (result.invoice_id && result.invoice_token) {
+        setInvoiceFile({
+          invoiceId: result.invoice_id,
+          token: result.invoice_token,
+          filename: result.invoice_filename || "invoice.pdf",
+        });
+      }
 
       if (hasPlan && result.login && result.login.provisioned === false) {
         const productName = selectedApp?.name || applicationCode || "application";
@@ -293,11 +319,34 @@ function RegisterForm({
             >
               Account created successfully
             </h2>
+            {invoiceFile && (
+              <button
+                type="button"
+                onClick={() => {
+                  setDownloading(true);
+                  setError(null);
+                  downloadSignupInvoice(invoiceFile)
+                    .catch((err: unknown) => {
+                      setError(err instanceof Error ? err.message : "Could not download the invoice.");
+                    })
+                    .finally(() => setDownloading(false));
+                }}
+                disabled={downloading}
+                className="mt-8 inline-flex w-full items-center justify-center rounded-lg border border-primary px-5 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/5 disabled:opacity-60"
+              >
+                {downloading ? "Downloading..." : "Download invoice"}
+              </button>
+            )}
+            {error && (
+              <p className="mt-3 text-sm text-red-700" role="alert">
+                {error}
+              </p>
+            )}
             <button
               type="button"
               onClick={openWorkspace}
               disabled={opening}
-              className="mt-8 inline-flex w-full items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover disabled:opacity-60"
+              className={`${invoiceFile ? "mt-3" : "mt-8"} inline-flex w-full items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover disabled:opacity-60`}
             >
               {opening ? "Opening..." : "Sign in"}
             </button>
