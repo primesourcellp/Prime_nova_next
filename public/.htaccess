@@ -3,8 +3,17 @@
 Options -MultiViews
 RewriteEngine On
 
-# Same-origin /api/v1 is forwarded to the subscription API.
-RewriteRule ^api/v1/(.*)$ /subscription-proxy.php?__path=$1 [QSA,L]
+# Prefer a real file/dir under api/ (e.g. plans/public/index.php) when present.
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^api/v1/ - [L]
+RewriteRule ^api/v1/(.*)$ subscription-proxy.php?__path=$1 [QSA,L]
+
+# Browsers request /favicon.ico; we only ship SVG.
+RewriteRule ^favicon\.ico$ favicon.svg [L]
+
+# Next soft-nav RSC payloads are not present on static export hosts.
+RewriteRule __next /index.html [L]
 
 # Force HTTPS (uncomment if your host supports it)
 # RewriteCond %{HTTPS} off
@@ -15,12 +24,14 @@ RewriteRule ^api/v1/(.*)$ /subscription-proxy.php?__path=$1 [QSA,L]
 # when it has no index.html.
 RewriteCond %{REQUEST_URI} ^/(.+)/$
 RewriteCond %{DOCUMENT_ROOT}/%1/index.html !-f
+RewriteCond %{DOCUMENT_ROOT}/%1/index.php !-f
 RewriteCond %{DOCUMENT_ROOT}/%1.html -f
 RewriteRule ^ /%1.html [L]
 
 # Serve existing files, and directories that actually contain an index
 RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI}index.html -f
+RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI}index.html -f [OR]
+RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI}index.php -f
 RewriteRule ^ - [L]
 
 # Map clean URLs to .html files (e.g. /about -> /about.html)

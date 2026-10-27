@@ -19,6 +19,10 @@ export const metadata: Metadata = {
   title: "Primenova — Recruitment Software for Structured Hiring",
   description:
     "Primenova provides product-focused recruitment technology that helps organizations structure pipelines, screening, and hiring decisions with clarity.",
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    shortcut: ["/favicon.svg"],
+  },
 };
 
 export default function RootLayout({

@@ -1,0 +1,11 @@
+# Route every /api/v1/* request through the PHP proxy.
+# Works even when the site root .htaccess is ignored.
+Options -MultiViews
+DirectoryIndex router.php
+RewriteEngine On
+
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+RewriteRule ^(.*)$ router.php?__path=$1 [QSA,L]

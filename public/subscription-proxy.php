@@ -6,6 +6,7 @@
 
 $path = isset($_GET["__path"]) ? (string) $_GET["__path"] : "";
 $path = ltrim($path, "/");
+$path = rtrim($path, "/");
 
 if ($path === "" || strpos($path, "..") !== false || !preg_match("#^[A-Za-z0-9_./-]+$#", $path)) {
     http_response_code(400);
@@ -22,7 +23,7 @@ foreach ($_GET as $key => $value) {
     $query[$key] = $value;
 }
 
-$url = "https://subscriptionapi.primesourcellp.com/api/v1/" . $path;
+$url = "https://subscriptionapi.primesourcellp.com/api/v1/" . $path . "/";
 $qs = http_build_query($query);
 if ($qs !== "") {
     $url .= "?" . $qs;
@@ -43,6 +44,7 @@ $options = [
     CURLOPT_HEADER => true,
     CURLOPT_HTTPHEADER => $headers,
     CURLOPT_TIMEOUT => 30,
+    CURLOPT_FOLLOWLOCATION => true,
 ];
 if ($body !== false && $body !== "" && $method !== "GET" && $method !== "HEAD") {
     $options[CURLOPT_POSTFIELDS] = $body;
