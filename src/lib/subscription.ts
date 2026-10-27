@@ -45,25 +45,43 @@ export function getSubscriptionApiBase(): string {
     /\/$/,
     "",
   );
-  // Browser calls stay on this host. Apache forwards /api/v1 to the
-  // subscription API, so the browser never makes a cross-origin request.
-  if (process.env.NODE_ENV === "production" && typeof window !== "undefined") {
-    return "";
-  }
   if (fromEnv) return fromEnv;
   return process.env.NODE_ENV === "production"
     ? PRODUCTION_SUBSCRIPTION_API_URL
     : "http://localhost:8000";
 }
 
+/**
+ * Same-origin URL for subscription API calls from the browser.
+ * Hostinger/LiteSpeed returns HTML 403 for /api/* before PHP runs, so
+ * production browsers hit subscription-proxy.php instead.
+ *
+ * @param path - e.g. "plans/public" or "tenants/access" (no /api/v1 prefix)
+ * @param query - optional query string without leading "?"
+ */
+export function subscriptionApiUrl(path: string, query = ""): string {
+  const cleaned = path.replace(/^\/+/, "").replace(/\/+$/, "");
+  const qs = query.replace(/^\?/, "");
+
+  if (process.env.NODE_ENV === "production" && typeof window !== "undefined") {
+    const params = new URLSearchParams(qs);
+    params.set("__path", cleaned);
+    return `/subscription-proxy.php?${params.toString()}`;
+  }
+
+  const base = getSubscriptionApiBase();
+  return qs
+    ? `${base}/api/v1/${cleaned}/?${qs}`
+    : `${base}/api/v1/${cleaned}/`;
+}
+
 export async function fetchPublicCatalog(
   applicationCode?: string,
 ): Promise<CatalogApplication[]> {
-  const base = getSubscriptionApiBase();
   const query = applicationCode
-    ? `?application=${encodeURIComponent(applicationCode)}`
+    ? `application=${encodeURIComponent(applicationCode)}`
     : "";
-  const url = `${base}/api/v1/plans/public/${query}`;
+  const url = subscriptionApiUrl("plans/public", query);
 
   const res = await fetch(url, {
     headers: { Accept: "application/json" },

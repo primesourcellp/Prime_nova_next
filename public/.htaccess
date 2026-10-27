@@ -3,7 +3,9 @@
 Options -MultiViews
 RewriteEngine On
 
-# Prefer a real file/dir under api/ (e.g. plans/public/index.php) when present.
+# Hostinger/LiteSpeed blocks /api/* with HTML 403 before PHP runs.
+# Browser calls use /subscription-proxy.php?__path=... (see subscriptionApiUrl).
+# Keep these rules for hosts that allow /api/ and for direct probes.
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^api/v1/ - [L]

@@ -1,5 +1,5 @@
 import {
-  getSubscriptionApiBase,
+  subscriptionApiUrl,
   type CatalogApplication,
 } from "./subscription";
 
@@ -126,7 +126,7 @@ export async function accessProduct(options: {
   provision?: boolean;
 }): Promise<ProductAccess> {
   const res = await fetch(
-    `${getSubscriptionApiBase()}/api/v1/tenants/access/`,
+    subscriptionApiUrl("tenants/access"),
     {
       method: "POST",
       headers: {
@@ -163,7 +163,7 @@ export async function registerTenant(options: {
   startTrial?: boolean;
 }): Promise<TenantRegisterResult> {
   const res = await fetch(
-    `${getSubscriptionApiBase()}/api/v1/tenants/register/`,
+    subscriptionApiUrl("tenants/register"),
     {
       method: "POST",
       headers: {
@@ -355,7 +355,7 @@ export async function downloadSignupInvoice(options: {
     token: options.token,
   });
   const response = await fetch(
-    `${getSubscriptionApiBase()}/api/v1/invoices/public-document/?${params.toString()}`,
+    subscriptionApiUrl("invoices/public-document", params.toString()),
   );
   if (!response.ok) {
     throw new Error("Could not download the invoice.");
