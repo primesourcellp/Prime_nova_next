@@ -6,14 +6,14 @@ import { fetchPublicCatalog, type CatalogApplication } from "@/lib/subscription"
 import {
   accessProduct,
   externalRefForEmail,
+  firstPlanFeaturePath,
   registerTenant,
-  downloadSignupInvoice,
   getRegisterSuccess,
-  productSignInUrl,
   resolveLaunchUrl,
   resolveRegisterLaunchUrl,
   saveRegisterSuccess,
   saveTenantSession,
+  type TenantRegisterResult,
 } from "@/lib/tenantAuth";
 
 export type RegisterFormProps = {
@@ -26,25 +26,58 @@ export type RegisterFormProps = {
   className?: string;
 };
 
-function withAutoLogin(
+/** Match LoginPageContent: email + password + tenant on the product login URL. */
+function withDirectSignParams(
   launchUrl: string,
-  login?: { temporary_password?: string } | null,
+  options: {
+    email: string;
+    password?: string;
+    tenantId?: number;
+    application?: string;
+    planCode?: string | null;
+    nextPath?: string;
+  },
 ): string {
   if (!launchUrl) return "";
   try {
     const url = new URL(launchUrl);
-    const password = login?.temporary_password?.trim();
-    if (password) {
-      url.searchParams.set("password", password);
+    if (options.email) url.searchParams.set("email", options.email.trim());
+    if (options.password) {
+      url.searchParams.set("password", options.password);
       url.searchParams.set("auto_login", "1");
     }
-    if (url.searchParams.get("login_token")) {
-      url.searchParams.set("auto_login", "1");
+    if (options.tenantId) {
+      url.searchParams.set("subscription_tenant_id", String(options.tenantId));
+      url.searchParams.set("tenant_id", String(options.tenantId));
     }
+    if (options.application) {
+      url.searchParams.set("application", options.application);
+    }
+    if (options.planCode) {
+      url.searchParams.set("plan", options.planCode);
+    }
+    if (options.nextPath) {
+      url.searchParams.set("next", options.nextPath);
+    }
+    url.searchParams.set("from", "prime-nova");
     return url.toString();
   } catch {
     return launchUrl;
   }
+}
+
+function openLinkInNewTab(url: string, tab: Window | null) {
+  if (tab && !tab.closed) {
+    tab.location.href = url;
+    return;
+  }
+  const link = document.createElement("a");
+  link.href = url;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
 }
 
 const fieldClass =
@@ -76,15 +109,17 @@ function RegisterForm({
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
-  const [loginHref, setLoginHref] = useState("/login");
   const [opening, setOpening] = useState(false);
-  const [invoiceFile, setInvoiceFile] = useState<{
-    invoiceId: number;
-    token: string;
-    filename: string;
+  const [registerLogin, setRegisterLogin] = useState<
+    TenantRegisterResult["login"] | null
+  >(null);
+  const [registerMeta, setRegisterMeta] = useState<{
+    applicationCode: string;
+    planCode?: string | null;
+    tenantId?: number;
+    email: string;
+    featureCodes?: string[];
   } | null>(null);
-  const [downloading, setDownloading] = useState(false);
-
   useEffect(() => {
     let cancelled = false;
     fetchPublicCatalog()
@@ -113,11 +148,14 @@ function RegisterForm({
 
   useEffect(() => {
     const saved = getRegisterSuccess();
-    if (saved?.invoiceId && saved.invoiceToken) {
-      setInvoiceFile({
-        invoiceId: saved.invoiceId,
-        token: saved.invoiceToken,
-        filename: saved.invoiceFilename || "invoice.pdf",
+    if (saved) {
+      setRegisterLogin(saved.login ?? null);
+      setRegisterMeta({
+        applicationCode: saved.applicationCode,
+        planCode: saved.planCode,
+        tenantId: saved.tenantId,
+        email: saved.email,
+        featureCodes: saved.featureCodes,
       });
     }
     if (searchParams.get("created") === "1") setSuccessOpen(true);
@@ -214,13 +252,15 @@ function RegisterForm({
         invoiceToken: result.invoice_token,
         invoiceFilename: result.invoice_filename,
       });
-      if (result.invoice_id && result.invoice_token) {
-        setInvoiceFile({
-          invoiceId: result.invoice_id,
-          token: result.invoice_token,
-          filename: result.invoice_filename || "invoice.pdf",
-        });
-      }
+
+      setRegisterLogin(result.login ?? null);
+      setRegisterMeta({
+        applicationCode,
+        planCode: result.plan_code,
+        tenantId: result.tenant_id,
+        email: result.email || email.trim(),
+        featureCodes: result.feature_codes,
+      });
 
       if (hasPlan && result.login && result.login.provisioned === false) {
         const productName = selectedApp?.name || applicationCode || "application";
@@ -228,23 +268,10 @@ function RegisterForm({
           result.login.message ||
             `Your workspace was saved, but ${productName} could not be opened. Make sure that application is running, then try again.`,
         );
+        setSuccessOpen(true);
         return;
       }
 
-      const productUrl = productSignInUrl(withAutoLogin(launchUrl, result.login), {
-        applicationCode,
-        featureCodes: result.feature_codes,
-      });
-      if (productUrl) {
-        setLoginHref(productUrl);
-      } else {
-        const planQuery = result.plan_code
-          ? `&plan=${encodeURIComponent(result.plan_code)}`
-          : "";
-        setLoginHref(
-          `/login?application=${encodeURIComponent(applicationCode)}&email=${encodeURIComponent(result.email || email.trim())}${planQuery}`,
-        );
-      }
       setSuccessOpen(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed.");
@@ -254,29 +281,78 @@ function RegisterForm({
   }
 
   async function openWorkspace() {
-    if (loginHref.includes("login_token=") || loginHref.includes("auto_login=1")) {
-      window.location.assign(loginHref);
-      return;
-    }
     setOpening(true);
     setError(null);
+    const productTab = window.open("about:blank", "_blank");
+    const appCode =
+      registerMeta?.applicationCode || application || selectedApp?.application_code || "";
+    const signEmail = registerMeta?.email || email.trim();
+    const productName = selectedApp?.name || appCode || "application";
+
     try {
+      if (!appCode) {
+        productTab?.close();
+        setError("Select an application to continue.");
+        return;
+      }
+      if (!signEmail) {
+        productTab?.close();
+        setError("Email is required to sign in.");
+        return;
+      }
+
       const access = await accessProduct({
-        application,
-        email: email.trim(),
-        externalRef: externalRefForEmail(email),
+        application: appCode,
+        email: signEmail,
+        externalRef: externalRefForEmail(signEmail),
         companyName: companyName.trim(),
         provision: true,
       });
+
       let launchUrl = resolveLaunchUrl(access, selectedApp);
-      launchUrl = withAutoLogin(launchUrl, access.login);
+      const password =
+        access.login?.temporary_password?.trim() ||
+        registerLogin?.temporary_password?.trim() ||
+        "";
+
+      launchUrl = withDirectSignParams(launchUrl, {
+        email: access.email || signEmail,
+        password: password || undefined,
+        tenantId: access.tenant_id || registerMeta?.tenantId,
+        application: access.application_code || appCode,
+        planCode: access.plan_code || registerMeta?.planCode,
+        nextPath: firstPlanFeaturePath(
+          access.feature_codes || registerMeta?.featureCodes,
+          access.application_code || appCode,
+        ),
+      });
+
       if (!launchUrl) {
-        setError("Timesheet could not be opened. Make sure it is running, then try again.");
+        productTab?.close();
+        setError(
+          access.login?.message ||
+            `${productName} has no app URL configured. Set app_base_url in Subscription Module admin.`,
+        );
         return;
       }
-      window.location.assign(launchUrl);
+
+      if (!password && access.login?.provisioned === false) {
+        productTab?.close();
+        setError(
+          access.login.message ||
+            `${productName} could not provision a login. Make sure that application is running, then try again.`,
+        );
+        return;
+      }
+
+      openLinkInNewTab(launchUrl, productTab);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not open Timesheet.");
+      productTab?.close();
+      setError(
+        err instanceof Error
+          ? err.message
+          : `Could not open ${productName}.`,
+      );
     } finally {
       setOpening(false);
     }
@@ -319,24 +395,6 @@ function RegisterForm({
             >
               Account created successfully
             </h2>
-            {invoiceFile && (
-              <button
-                type="button"
-                onClick={() => {
-                  setDownloading(true);
-                  setError(null);
-                  downloadSignupInvoice(invoiceFile)
-                    .catch((err: unknown) => {
-                      setError(err instanceof Error ? err.message : "Could not download the invoice.");
-                    })
-                    .finally(() => setDownloading(false));
-                }}
-                disabled={downloading}
-                className="mt-8 inline-flex w-full items-center justify-center rounded-lg border border-primary px-5 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/5 disabled:opacity-60"
-              >
-                {downloading ? "Downloading..." : "Download invoice"}
-              </button>
-            )}
             {error && (
               <p className="mt-3 text-sm text-red-700" role="alert">
                 {error}
@@ -346,7 +404,7 @@ function RegisterForm({
               type="button"
               onClick={openWorkspace}
               disabled={opening}
-              className={`${invoiceFile ? "mt-3" : "mt-8"} inline-flex w-full items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover disabled:opacity-60`}
+              className="mt-8 inline-flex w-full items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover disabled:opacity-60"
             >
               {opening ? "Opening..." : "Sign in"}
             </button>

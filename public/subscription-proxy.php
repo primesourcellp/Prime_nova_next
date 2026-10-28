@@ -32,7 +32,8 @@ if ($qs !== "") {
 $method = isset($_SERVER["REQUEST_METHOD"]) ? $_SERVER["REQUEST_METHOD"] : "GET";
 $body = file_get_contents("php://input");
 
-$headers = ["Accept: application/json"];
+// PDF invoice downloads need */*; JSON endpoints still return JSON.
+$headers = ["Accept: application/pdf, application/json, */*"];
 if (!empty($_SERVER["CONTENT_TYPE"])) {
     $headers[] = "Content-Type: " . $_SERVER["CONTENT_TYPE"];
 }
@@ -67,7 +68,11 @@ curl_close($ch);
 http_response_code($status ? $status : 502);
 $rawHeaders = substr($response, 0, $headerSize);
 foreach (preg_split("/\r\n|\n|\r/", $rawHeaders) as $line) {
-    if (stripos($line, "Content-Type:") === 0) {
+    if (
+        stripos($line, "Content-Type:") === 0 ||
+        stripos($line, "Content-Disposition:") === 0 ||
+        stripos($line, "Content-Length:") === 0
+    ) {
         header($line);
     }
 }

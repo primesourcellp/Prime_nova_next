@@ -350,21 +350,55 @@ export async function downloadSignupInvoice(options: {
   token: string;
   filename: string;
 }): Promise<void> {
+  // Open synchronously from the click gesture so popup blockers allow the PDF tab.
+  const preview = window.open("about:blank", "_blank");
   const params = new URLSearchParams({
     invoice: String(options.invoiceId),
     token: options.token,
   });
-  const response = await fetch(
-    subscriptionApiUrl("invoices/public-document", params.toString()),
-  );
-  if (!response.ok) {
-    throw new Error("Could not download the invoice.");
+
+  try {
+    const response = await fetch(
+      subscriptionApiUrl("invoices/public-document", params.toString()),
+    );
+    if (!response.ok) {
+      throw new Error("Could not download the invoice.");
+    }
+
+    const contentType = (response.headers.get("Content-Type") || "").toLowerCase();
+    const blob = await response.blob();
+    // Hostinger HTML 403 / JSON errors must not be saved as a fake PDF.
+    if (
+      contentType.includes("text/html") ||
+      contentType.includes("application/json") ||
+      blob.size < 100
+    ) {
+      throw new Error("Could not download the invoice.");
+    }
+
+    const pdfBlob =
+      contentType.includes("application/pdf") || blob.type === "application/pdf"
+        ? blob
+        : new Blob([blob], { type: "application/pdf" });
+    const url = URL.createObjectURL(pdfBlob);
+    const filename = options.filename || "invoice.pdf";
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.rel = "noopener";
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    if (preview && !preview.closed) {
+      preview.location.href = url;
+    }
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  } catch (err) {
+    if (preview && !preview.closed) {
+      preview.close();
+    }
+    throw err;
   }
-  const blob = await response.blob();
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = options.filename || "invoice.pdf";
-  link.click();
-  URL.revokeObjectURL(url);
 }
