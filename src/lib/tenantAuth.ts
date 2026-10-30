@@ -52,6 +52,8 @@ export type TenantRegisterResult = {
   application_code?: string | null;
   app_base_url?: string | null;
   launch_url?: string | null;
+  workspace_url?: string | null;
+  slug?: string | null;
   feature_codes?: string[];
   login?: {
     username?: string;
@@ -151,6 +153,17 @@ export async function accessProduct(options: {
   return body.data;
 }
 
+/** DNS-safe company slug from company name (e.g. Demo&Co → democo). */
+export function slugFromCompanyName(companyName: string): string {
+  const base = companyName
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 63);
+  return base || "company";
+}
+
 /** First-time register — Subscription Module tenants/register. */
 export async function registerTenant(options: {
   companyName: string;
@@ -161,7 +174,11 @@ export async function registerTenant(options: {
   planCode?: string;
   billingCycle?: "MONTHLY" | "YEARLY";
   startTrial?: boolean;
+  slug?: string;
 }): Promise<TenantRegisterResult> {
+  const slug =
+    (options.slug || "").trim() ||
+    slugFromCompanyName(options.companyName);
   const res = await fetch(
     subscriptionApiUrl("tenants/register"),
     {
@@ -180,6 +197,7 @@ export async function registerTenant(options: {
         planCode: options.planCode || undefined,
         billingCycle: options.billingCycle,
         startTrial: options.startTrial,
+        slug,
       }),
     },
   );
@@ -293,6 +311,7 @@ export function resolveRegisterLaunchUrl(
   result: TenantRegisterResult,
   app?: CatalogApplication | null,
 ): string {
+  if (result.workspace_url) return result.workspace_url;
   if (result.launch_url) return result.launch_url;
   const applicationCode =
     result.application_code || app?.application_code || "";

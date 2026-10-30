@@ -110,6 +110,7 @@ function RegisterForm({
   const [submitting, setSubmitting] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [opening, setOpening] = useState(false);
+  const [loginUrl, setLoginUrl] = useState<string>("");
   const [registerLogin, setRegisterLogin] = useState<
     TenantRegisterResult["login"] | null
   >(null);
@@ -150,6 +151,7 @@ function RegisterForm({
     const saved = getRegisterSuccess();
     if (saved) {
       setRegisterLogin(saved.login ?? null);
+      setLoginUrl(saved.launchUrl || "");
       setRegisterMeta({
         applicationCode: saved.applicationCode,
         planCode: saved.planCode,
@@ -254,6 +256,7 @@ function RegisterForm({
       });
 
       setRegisterLogin(result.login ?? null);
+      setLoginUrl(launchUrl || result.workspace_url || "");
       setRegisterMeta({
         applicationCode,
         planCode: result.plan_code,
@@ -262,14 +265,18 @@ function RegisterForm({
         featureCodes: result.feature_codes,
       });
 
+      // Tenant/subscription may succeed while ATS (or other app) user
+      // provisioning returns a raw HTTP label like "Forbidden".
       if (hasPlan && result.login && result.login.provisioned === false) {
         const productName = selectedApp?.name || applicationCode || "application";
+        const raw = (result.login.message || "").trim();
+        const opaque =
+          !raw || /^(forbidden|unauthorized|error|failed)$/i.test(raw);
         setError(
-          result.login.message ||
-            `Your workspace was saved, but ${productName} could not be opened. Make sure that application is running, then try again.`,
+          opaque
+            ? `Your workspace was saved, but ${productName} could not create a login yet. You can still sign in from the product, or try again shortly.`
+            : raw,
         );
-        setSuccessOpen(true);
-        return;
       }
 
       setSuccessOpen(true);
@@ -309,7 +316,8 @@ function RegisterForm({
         provision: true,
       });
 
-      let launchUrl = resolveLaunchUrl(access, selectedApp);
+      let launchUrl =
+        resolveLaunchUrl(access, selectedApp) || loginUrl || "";
       const password =
         access.login?.temporary_password?.trim() ||
         registerLogin?.temporary_password?.trim() ||
@@ -395,6 +403,29 @@ function RegisterForm({
             >
               Account created successfully
             </h2>
+            {loginUrl ? (
+              <p className="mt-4 break-all text-left text-sm text-muted">
+                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-light">
+                  Login URL
+                </span>
+                <a
+                  href={loginUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-primary underline-offset-2 hover:underline"
+                >
+                  {loginUrl}
+                </a>
+              </p>
+            ) : null}
+            {registerLogin?.username || registerLogin?.email ? (
+              <p className="mt-3 text-left text-sm text-muted">
+                Username:{" "}
+                <span className="font-medium text-foreground">
+                  {registerLogin.username || registerLogin.email}
+                </span>
+              </p>
+            ) : null}
             {error && (
               <p className="mt-3 text-sm text-red-700" role="alert">
                 {error}
@@ -403,7 +434,7 @@ function RegisterForm({
             <button
               type="button"
               onClick={openWorkspace}
-              disabled={opening}
+              disabled={opening || !loginUrl}
               className="mt-8 inline-flex w-full items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover disabled:opacity-60"
             >
               {opening ? "Opening..." : "Sign in"}
